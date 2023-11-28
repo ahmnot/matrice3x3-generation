@@ -1,4 +1,4 @@
-This is a p5.js program that generates blocks, with a UI.
+This is a p5.js program that generates blocks, with an UI.
 
 Definition: a “block” is a 3x3 matrix made up of 0 or 1.
 
