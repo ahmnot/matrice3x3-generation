@@ -304,7 +304,7 @@ blocsBrises.reverse();
 let blocsAffiches = [];
   
 let scaling = 8;
-let rownumber = 10;
+let rownumber = 9;
 let elementsPerRow = Math.ceil(tousLesBlocs.length / rownumber);
 let squareSize = 3; // Taille du carré (3x3, 4x4, etc.)
 let lineWidth = 2; // Largeur de la ligne verticale
