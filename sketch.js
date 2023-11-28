@@ -303,18 +303,44 @@ blocsBrises.reverse();
 
 let blocsAffiches = [];
   
-let scaling = 8;
+let scaling = 9;
 let rownumber = 9;
 let elementsPerRow = Math.ceil(tousLesBlocs.length / rownumber);
 let squareSize = 3; // Taille du carré (3x3, 4x4, etc.)
-let lineWidth = 2; // Largeur de la ligne verticale
+let lineWidth = 1; // Largeur de la ligne verticale
 let canvasWidth = elementsPerRow * (squareSize * scaling + lineWidth) - lineWidth;
 let canvasHeight = rownumber * squareSize * scaling;
 let decalageHorizontal = 0;
 let sliderNombreCarres;
+let sliderNombreCarresLegende;
 let radioTypeBlocs;
+let radioTypeBlocsLegende;
 let positionIHMx = 300;
 let positionIHMy = 300;
+let positionIHMFiltresy = 130;
+
+let minWidth = 1000; // Largeur minimale du canvas
+let minHeight = 1000; // Hauteur minimale du canvas
+
+let totalWidth = squareSize * scaling + lineWidth;
+let gridStartX = 0; // À mettre à jour si la grille ne commence pas à x=0
+let gridStartY = 0; // À mettre à jour si la grille ne commence pas à y=0
+
+let gridEndX = gridStartX + elementsPerRow * totalWidth;
+let gridEndY = gridStartY + rownumber * (squareSize * scaling);
+
+let cnv;
+
+function preload() {
+	exempleBlocContinu = loadImage("blocs-6_19.png");
+	exempleBlocBrise = loadImage("blocs-5_09.png");
+	exemplePattern0 = loadImage("blocs-2_22.png");
+	exemplePattern1 = loadImage("blocs-2_04.png");
+	exemplePattern2 = loadImage("blocs-2_05.png");
+	exemplePattern3 = loadImage("blocs-2_23.png");
+	exemplePattern4 = loadImage("blocs-2_08.png");
+	exemplePatterm1 = loadImage("bloc-0.png");
+}
 
 function setup() {
   sliderNombreCarres = createSlider(0, 9, nombreCarresBlancs, 1);
@@ -331,10 +357,10 @@ function setup() {
   radioTypeBlocs.selected('Tous');
   radioTypeBlocsLegende = createP();
   radioTypeBlocsLegende.position(positionIHMx + 50, positionIHMy + 70);
-  radioTypeBlocsLegende.html(`Type des blocs affichés`);
+  radioTypeBlocsLegende.html(`Type de blocs affichés`);
 
   nombreBlocs = createP();
-  nombreBlocs.position(positionIHMx + 50, positionIHMy + 120);
+  nombreBlocs.position(positionIHMx + 50, positionIHMy + positionIHMFiltresy);
   nombreBlocs.html(`Application de filtres`);
 
   checkbox0 = createCheckbox('Pattern 0', false);
@@ -343,12 +369,12 @@ function setup() {
   checkbox3 = createCheckbox('Pattern 3', false);
   checkbox4 = createCheckbox('Pattern 4', false);
   checkbom1 = createCheckbox('Pattern -1', false);
-  checkbox0.position(positionIHMx + 20, positionIHMy + 150);
-  checkbox1.position(positionIHMx + 20, positionIHMy + 170);
-  checkbox2.position(positionIHMx + 20, positionIHMy + 190);
-  checkbox3.position(positionIHMx + 20, positionIHMy + 210);
-  checkbox4.position(positionIHMx + 20, positionIHMy + 230);
-  checkbom1.position(positionIHMx + 20, positionIHMy + 250);
+  checkbox0.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 30);
+  checkbox1.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 50);
+  checkbox2.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 70);
+  checkbox3.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 90);
+  checkbox4.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 110);
+  checkbom1.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 130);
   
   nombreBlocs = createP();
   nombreBlocs.position(positionIHMx+50, positionIHMy +270);
@@ -357,7 +383,11 @@ function setup() {
   canvasWidth = elementsPerRow * (squareSize * scaling + lineWidth) - lineWidth;
   canvasHeight = rownumber * squareSize * scaling;
 
-  createCanvas(canvasWidth, canvasHeight);
+  canvasWidth = max(canvasWidth, minWidth);
+  canvasHeight = max(canvasHeight, minHeight);
+
+  cnv = createCanvas(canvasWidth, canvasHeight);
+  cnv.id('mycanvas');
   background(0);
 }
 
@@ -418,10 +448,22 @@ function draw() {
   elementsPerRow = Math.ceil(blocsAffiches.length / rownumber);
   canvasWidth = elementsPerRow * (squareSize * scaling + lineWidth) - lineWidth;
   canvasHeight = rownumber * squareSize * scaling;
+  canvasWidth = max(canvasWidth, minWidth);
+  canvasHeight = max(canvasHeight, minHeight);
+
   resizeCanvas(canvasWidth, canvasHeight);
 
   // Mise à jour de l'affichage
-  background(0); // Nettoie le canvas avant de redessiner
+  background(10); // Nettoie le canvas avant de redessiner
+  image(exempleBlocContinu,383,400);
+  image(exempleBlocBrise,447,400);
+  image(exemplePattern0,383,442);
+  image(exemplePattern1,383,462);
+  image(exemplePattern2,383,482);
+  image(exemplePattern3,383,502);
+  image(exemplePattern4,383,522);
+  image(exemplePatterm1,383,542);
+
   for (let l = 0; l < rownumber; l++) {
     for (let k = 0; k < elementsPerRow; k++) {
       let index = l * elementsPerRow + k;
@@ -444,5 +486,57 @@ function draw() {
       }
     }
     decalageHorizontal = 0; // Réinitialiser le décalage pour chaque ligne
+  }
+
+  drawHoverSquare();
+}
+
+/**
+ * Fonction qui sert à dessiner le carré rouge de survol de la grille
+ */
+function drawHoverSquare() {
+  let gridX = Math.floor(mouseX / totalWidth);
+  let gridY = Math.floor(mouseY / (squareSize * scaling));
+  // Vérifiez si la souris est à l'intérieur du canvas
+  if (mouseX >= gridStartX && mouseX < gridEndX && mouseY >= gridStartY && mouseY < gridEndY) {
+      stroke(255, 0, 0); // Couleur de la bordure du carré de survol
+      noFill();
+      strokeWeight(2); // Épaisseur de la bordure
+      square(gridX * totalWidth , gridY * squareSize * scaling, squareSize * scaling);
+  }
+}
+
+/**
+ * 
+ */
+function mouseClicked() {
+  let gridX = Math.floor(mouseX / totalWidth);
+  let gridY = Math.floor(mouseY / (squareSize * scaling));
+  // Vérifiez si le clic est à l'intérieur de la grille
+  if (mouseX >= gridStartX && mouseX < gridEndX && mouseY >= gridStartY && mouseY < gridEndY) {
+      // Obtenez l'index du bloc sur lequel l'utilisateur a cliqué
+      let index = gridY * elementsPerRow + gridX;
+      if (index < blocsAffiches.length) {
+          let bloc = blocsAffiches[index];
+
+          // Créez un graphique pour dessiner le bloc
+          let pg = createGraphics(squareSize * scaling, squareSize * scaling);
+          pg.background(0); // Fond blanc ou toute autre couleur de fond souhaitée
+          pg.noFill();
+
+          // Dessinez le bloc sur le graphique
+          for (let i = 0; i < squareSize; i++) {
+              for (let j = 0; j < squareSize; j++) {
+                  if (bloc[i][j] === 1) {
+                      pg.fill(255); // Couleur des carrés pleins
+                      pg.noStroke();
+                      pg.square(j * scaling, i * scaling, scaling);
+                  }
+              }
+          }
+
+          // Enregistrez le graphique en tant que fichier PNG
+          save(pg, `blocs-${sliderNombreCarres.value()}_${index}.png`);
+      }
   }
 }
