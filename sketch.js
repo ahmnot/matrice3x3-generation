@@ -1,3 +1,6 @@
+import JSZip from "libraries/jszip.min.js";
+import saveAs from "libraries/FileSaver.js";
+
 // Définition : un "bloc" est une matrice 3x3 constituée de 0 ou de 1. 
 // Pour visualiser ces carrés, on convient que :
 // 0=petit carré noir, et 1=petit carré blanc.
@@ -99,7 +102,8 @@ function areOnesConnected(matrice) {
 // Vérifie si le bloc répond aux critères du niveau 0
 function verifierNiveau0(bloc) {
   // Niveau 1: Carrés blancs adjacents directement ou en diagonale sans sauter par-dessus un carré noir
-  return bloc.some((ligne, i) =>
+  return bloc.flat().filter(val => val === 1).length === 1 ||
+  bloc.some((ligne, i) =>
     ligne.some((val, j) =>
       val === 1 && (
         // Vérifier les carrés adjacents horizontalement et verticalement
@@ -192,6 +196,11 @@ function verifierNiveaum1(bloc) {
   return JSON.stringify(bloc) === JSON.stringify([
     [0, 0, 0],
     [0, 0, 0],
+    [0, 0, 0]
+  ]) ||
+  JSON.stringify(bloc) === JSON.stringify([
+    [0, 0, 0],
+    [0, 1, 0],
     [0, 0, 0]
   ]);  
 }
@@ -334,15 +343,20 @@ let cnv;
 function preload() {
 	exempleBlocContinu = loadImage("blocs-6_19.png");
 	exempleBlocBrise = loadImage("blocs-5_09.png");
-	exemplePattern0 = loadImage("blocs-2_22.png");
+	exemplePattern01 = loadImage("blocs-2_22.png");
+	exemplePattern02 = loadImage("bloc-1-3.png");
 	exemplePattern1 = loadImage("blocs-2_04.png");
 	exemplePattern2 = loadImage("blocs-2_05.png");
 	exemplePattern3 = loadImage("blocs-2_23.png");
 	exemplePattern4 = loadImage("blocs-2_08.png");
-	exemplePatterm1 = loadImage("bloc-0.png");
+	exemplePatternm11 = loadImage("bloc-0.png");
+	exemplePatternm12 = loadImage("bloc-1-4.png");
 }
 
 function setup() {
+  nombreBlocs = createP();
+  nombreBlocs.position(positionIHMx+25, positionIHMy-20);
+  nombreBlocs.html(`Cliquez sur un bloc pour l'exporter.`);
   sliderNombreCarres = createSlider(0, 9, nombreCarresBlancs, 1);
   sliderNombreCarres.position(positionIHMx + 20, positionIHMy + 50);
   sliderNombreCarres.style('width', '200px');
@@ -379,6 +393,10 @@ function setup() {
   nombreBlocs = createP();
   nombreBlocs.position(positionIHMx+50, positionIHMy +270);
   nombreBlocs.html(`Nombre de blocs affichés : `);
+
+  exportButton = createButton('Exporter tous les blocs affichés');
+  exportButton.position(positionIHMx+30, positionIHMy+310);
+  exportButton.mousePressed(exportAllBlocks);
 
   canvasWidth = elementsPerRow * (squareSize * scaling + lineWidth) - lineWidth;
   canvasHeight = rownumber * squareSize * scaling;
@@ -457,12 +475,14 @@ function draw() {
   background(15); // Nettoie le canvas avant de redessiner
   image(exempleBlocContinu,383,400);
   image(exempleBlocBrise,447,400);
-  image(exemplePattern0,383,442);
+  image(exemplePattern01,383,442);
+  image(exemplePattern02,403,442);
   image(exemplePattern1,383,462);
   image(exemplePattern2,383,482);
   image(exemplePattern3,383,502);
   image(exemplePattern4,383,522);
-  image(exemplePatterm1,383,542);
+  image(exemplePatternm11,383,542);
+  image(exemplePatternm12,403,542);
 
   for (let l = 0; l < rownumber; l++) {
     for (let k = 0; k < elementsPerRow; k++) {
@@ -528,7 +548,7 @@ function mouseClicked() {
           for (let i = 0; i < squareSize; i++) {
               for (let j = 0; j < squareSize; j++) {
                   if (bloc[i][j] === 1) {
-                      pg.fill(255); // Couleur des carrés pleins
+                      pg.fill(255);
                       pg.noStroke();
                       pg.square(j * scaling, i * scaling, scaling);
                   }
@@ -536,7 +556,40 @@ function mouseClicked() {
           }
 
           // Enregistre le graphique en tant que fichier PNG
-          save(pg, `blocs-${sliderNombreCarres.value()}_${index}.png`);
+          save(pg, `bloc-${sliderNombreCarres.value()}-${index}.png`);
       }
   }
+}
+
+function exportAllBlocks() {
+  let zip = new JSZip();
+
+  blocsAffiches.forEach((bloc, index) => {
+    let pg = createGraphics(squareSize * scaling, squareSize * scaling);
+    pg.background(0);
+    pg.noFill();
+    
+    for (let i = 0; i < squareSize; i++) {
+      for (let j = 0; j < squareSize; j++) {
+        if (bloc[i][j] === 1) {
+          pg.fill(255);
+          pg.noStroke();
+          pg.square(j * scaling, i * scaling, scaling);
+        }
+      }
+    }
+    console.log("toto");
+    // Ajoutez le PNG au ZIP
+    pg.canvas.toBlob(function(blob) {
+      zip.file(`bloc-${sliderNombreCarres.value()}-${index}.png`, blob);
+      
+      // Vérifiez si c'est le dernier bloc à ajouter
+      if (index === blocsAffiches.length - 1) {
+        zip.generateAsync({type:"blob"}).then(function(content) {
+          //saveAs vient de FileSaver.js
+          saveAs(content, `blocs-${sliderNombreCarres.value()}.zip`);
+        });
+      }
+    });
+  });
 }
