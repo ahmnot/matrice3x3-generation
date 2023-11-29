@@ -324,6 +324,7 @@ let sliderNombreCarres;
 let sliderNombreCarresLegende;
 let radioTypeBlocs;
 let radioTypeBlocsLegende;
+let nombreBlocs;
 let positionIHMx = 300;
 let positionIHMy = 300;
 let positionIHMFiltresy = 130;
@@ -338,7 +339,8 @@ let gridStartY = 0; // À mettre à jour si la grille ne commence pas à y=0
 let gridEndX = gridStartX + elementsPerRow * totalWidth;
 let gridEndY = gridStartY + rownumber * (squareSize * scaling);
 
-let stringSelectedPatterns = "";
+let checkboxes = [];
+let stringPatternChecked = "";
 
 function preload() {
 	exempleBlocContinu = loadImage("blocs-6_19.png");
@@ -354,9 +356,9 @@ function preload() {
 }
 
 function setup() {
-  nombreBlocs = createP();
-  nombreBlocs.position(positionIHMx+25, positionIHMy-20);
-  nombreBlocs.html(`Cliquez sur un bloc pour l'exporter.`);
+  let tutoTexte = createP();
+  tutoTexte.position(positionIHMx+25, positionIHMy-20);
+  tutoTexte.html(`Cliquez sur un bloc pour l'exporter.`);
   sliderNombreCarres = createSlider(0, 9, nombreCarresBlancs, 1);
   sliderNombreCarres.position(positionIHMx + 20, positionIHMy + 50);
   sliderNombreCarres.style('width', '200px');
@@ -373,28 +375,28 @@ function setup() {
   radioTypeBlocsLegende.position(positionIHMx + 50, positionIHMy + 70);
   radioTypeBlocsLegende.html(`Type de blocs affichés`);
 
-  nombreBlocs = createP();
-  nombreBlocs.position(positionIHMx + 50, positionIHMy + positionIHMFiltresy);
-  nombreBlocs.html(`Application de filtres`);
+  let legendeFiltres = createP();
+  legendeFiltres.position(positionIHMx + 50, positionIHMy + positionIHMFiltresy);
+  legendeFiltres.html(`Application de filtres`);
 
-  checkbox0 = createCheckbox('Pattern 0', false);
-  checkbox1 = createCheckbox('Pattern 1', false);
-  checkbox2 = createCheckbox('Pattern 2', false);
-  checkbox3 = createCheckbox('Pattern 3', false);
-  checkbox4 = createCheckbox('Pattern 4', false);
-  checkbom1 = createCheckbox('Pattern -1', false);
-  checkbox0.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 30);
-  checkbox1.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 50);
-  checkbox2.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 70);
-  checkbox3.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 90);
-  checkbox4.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 110);
-  checkbom1.position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 130);
+  checkboxes[0] = createCheckbox('Pattern 0', false);
+  checkboxes[1] = createCheckbox('Pattern 1', false);
+  checkboxes[2] = createCheckbox('Pattern 2', false);
+  checkboxes[3] = createCheckbox('Pattern 3', false);
+  checkboxes[4] = createCheckbox('Pattern 4', false);
+  checkboxes[5] = createCheckbox('Pattern -1', false);
+  checkboxes[0].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 30);
+  checkboxes[1].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 50);
+  checkboxes[2].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 70);
+  checkboxes[3].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 90);
+  checkboxes[4].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 110);
+  checkboxes[5].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 130);
   
   nombreBlocs = createP();
   nombreBlocs.position(positionIHMx+50, positionIHMy +270);
   nombreBlocs.html(`Nombre de blocs affichés : `);
 
-  exportButton = createButton('Exporter tous les blocs affichés');
+  let exportButton = createButton('Exporter tous les blocs affichés');
   exportButton.position(positionIHMx+30, positionIHMy+310);
   exportButton.mousePressed(exportAllBlocks);
 
@@ -441,30 +443,25 @@ function draw() {
 
   
   // Filtre sur les différents patterns présents dans les blocs
-  if (checkbox0.checked()) {
+  if (checkboxes[0].checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau0);
-    stringSelectedPatterns += "0";
   }
-  if (checkbox1.checked()) {
+  if (checkboxes[1].checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau1);
-    stringSelectedPatterns += "1";
   }
-  if (checkbox2.checked()) {
+  if (checkboxes[2].checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau2);
-    stringSelectedPatterns += "2";
   }
-  if (checkbox3.checked()) {
+  if (checkboxes[3].checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau3);
-    stringSelectedPatterns += "3";
   }
-  if (checkbox4.checked()) {
+  if (checkboxes[4].checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau4);
-    stringSelectedPatterns += "4";
   }
-  if (checkbom1.checked()) {
+  if (checkboxes[5].checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveaum1);
-    stringSelectedPatterns += "m1";
   }
+  
 
   nombreBlocs.html(`Nombre de blocs affichés : ${blocsAffiches.length}`);
 
@@ -539,35 +536,47 @@ function mouseClicked() {
   let gridY = Math.floor(mouseY / (squareSize * scaling));
   // Vérifie si le clic est à l'intérieur de la grille
   if (mouseX >= gridStartX && mouseX < gridEndX && mouseY >= gridStartY && mouseY < gridEndY) {
-      // Obtient l'index du bloc sur lequel l'utilisateur a cliqué
-      let index = gridY * elementsPerRow + gridX;
-      if (index < blocsAffiches.length) {
-          let bloc = blocsAffiches[index];
+    // Obtient l'index du bloc sur lequel l'utilisateur a cliqué
+    let index = gridY * elementsPerRow + gridX;
+    if (index < blocsAffiches.length) {
+      let bloc = blocsAffiches[index];
 
-          // Crée un graphique pour dessiner le bloc
-          let pg = createGraphics(squareSize * scaling, squareSize * scaling);
-          pg.background(0);
-          pg.noFill();
+      // Crée un graphique pour dessiner le bloc
+      let pg = createGraphics(squareSize * scaling, squareSize * scaling);
+      pg.background(0);
+      pg.noFill();
 
-          // Dessine le bloc sur le graphique
-          for (let i = 0; i < squareSize; i++) {
-              for (let j = 0; j < squareSize; j++) {
-                  if (bloc[i][j] === 1) {
-                      pg.fill(255);
-                      pg.noStroke();
-                      pg.square(j * scaling, i * scaling, scaling);
-                  }
-              }
+      // Dessine le bloc sur le graphique
+      for (let i = 0; i < squareSize; i++) {
+        for (let j = 0; j < squareSize; j++) {
+          if (bloc[i][j] === 1) {
+            pg.fill(255);
+            pg.noStroke();
+            pg.square(j * scaling, i * scaling, scaling);
           }
-
-          // Enregistre le graphique en tant que fichier PNG
-          save(pg, `bloc-${sliderNombreCarres.value()}-${index}.png`);
+        }
       }
+
+      // Enregistre le graphique en tant que fichier PNG
+      save(pg, `bloc-${sliderNombreCarres.value()}-${index}.png`);
+    }
   }
 }
 
 function exportAllBlocks() {
   let zip = new JSZip();
+
+  stringPatternChecked = "";
+
+  for (let i = 0; i < checkboxes.length; i++) {
+    if (checkboxes[i].checked()) {
+      if (i != 5) {
+        stringPatternChecked += "-p" + i ;
+      } else {
+        stringPatternChecked += "-pm1";
+      }
+    }
+  }
 
   blocsAffiches.forEach((bloc, index) => {
     let pg = createGraphics(squareSize * scaling, squareSize * scaling);
@@ -591,7 +600,7 @@ function exportAllBlocks() {
       if (index === blocsAffiches.length - 1) {
         zip.generateAsync({type:"blob"}).then(function(content) {
           //saveAs vient de FileSaver.js
-          saveAs(content, `blocs-${sliderNombreCarres.value()}.zip`);
+          saveAs(content, `blocs-${sliderNombreCarres.value()}${stringPatternChecked}.zip`);
         });
       }
     });
