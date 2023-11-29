@@ -52,6 +52,59 @@ function oppositeBloc(matrix) {
   return matrix.map(row => row.map(element => (element === 0 ? 1 : 0)));
 }
 
+/**
+ * Utilitaire qui compare deux matrices pour vérifier si elles sont identiques.
+ * @param {*} matrix1 
+ * @param {*} matrix2 
+ * @returns 
+ */
+function areMatricesEqual(matrix1, matrix2) {
+  return matrix1.every((row, rowIndex) => row.every((val, colIndex) => val === matrix2[rowIndex][colIndex]));
+}
+
+/**
+ * Utilitaire qui vérifie si un bloc est une rotation d'un autre.
+ * @param {*} bloc 
+ * @param {*} autreBloc 
+ * @returns 
+ */
+function estRotationDe(bloc, autreBloc) {
+  let rotation = autreBloc;
+  for (let i = 0; i < 4; i++) { // 4 rotations possibles : 0°, 90°, 180°, 270°
+    if (areMatricesEqual(bloc, rotation)) {
+      return true;
+    }
+    rotation = rotateBlocPlus90(rotation);
+  }
+  return false;
+}
+
+/**
+ * Vérifie si un bloc est équivalent par rotation à un bloc dans une liste donnée.
+ * @param {*} bloc 
+ * @param {*} liste 
+ * @returns 
+ */
+function estEquivalentParRotation(bloc, liste) {
+  return liste.some(autreBloc => estRotationDe(bloc, autreBloc));
+}
+
+/**
+ * Filtrer les blocs pour ne conserver qu'un exemplaire unique par classe d'équivalence de rotation.
+ */
+function filtrerBlocsParClasseDeRotation(listeBlocs = []) {
+  let listeResultat = [];
+  
+  listeBlocs.forEach(bloc => {
+    if (!estEquivalentParRotation(bloc, listeResultat)) {
+      listeResultat.push(bloc);
+    }
+  });
+
+  return listeResultat;
+}
+
+
 function areOnesConnected(matrice) {
   // Directions pour explorer les voisins : bas, haut, droite, gauche
   const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
@@ -128,15 +181,14 @@ function verifierNiveau1(bloc) {
 
 // Vérifie si le bloc répond aux critères du niveau 2
 function verifierNiveau2(bloc) {
-  // Niveau 2: Carrés blancs séparés par un seul carré noir sur la même ligne ou colonne
+  // Niveau 2: Carrés blancs séparés par un carré sur la même ligne ou colonne
   return bloc.some((ligne, i) =>
     ligne.some((val, j) =>
       val === 1 && (
-        // Vérifier les carrés avec un carré noir entre eux horizontalement et verticalement
-        (bloc[i][j + 2] === 1 && bloc[i][j + 1] === 0) || 
-        (bloc[i][j - 2] === 1 && bloc[i][j - 1] === 0) || 
-        (bloc[i + 2] && bloc[i + 2][j] === 1 && bloc[i + 1][j] === 0) || 
-        (bloc[i - 2] && bloc[i - 2][j] === 1 && bloc[i - 1][j] === 0)
+        (bloc[i][j + 2] === 1) || 
+        (bloc[i][j - 2] === 1) || 
+        (bloc[i + 2] && bloc[i + 2][j] === 1) || 
+        (bloc[i - 2] && bloc[i - 2][j] === 1)
       )
   ));
 }
@@ -312,22 +364,27 @@ blocsBrises.reverse();
 
 let blocsAffiches = [];
   
-let scaling = 9;
-let rownumber = 9;
+let scaling = 12;
+let rownumber = 6;
 let elementsPerRow = Math.ceil(tousLesBlocs.length / rownumber);
 let squareSize = 3; // Taille du carré (3x3, 4x4, etc.)
 let lineWidth = 1; // Largeur de la ligne verticale
 let canvasWidth = elementsPerRow * (squareSize * scaling + lineWidth) - lineWidth;
 let canvasHeight = rownumber * squareSize * scaling;
 let decalageHorizontal = 0;
+
 let sliderNombreCarres;
 let sliderNombreCarresLegende;
+let checkboxRotations;
 let radioTypeBlocs;
 let radioTypeBlocsLegende;
+let checkboxes = [];
+let stringPatternChecked = "";
 let nombreBlocs;
+
 let positionIHMx = 300;
 let positionIHMy = 300;
-let positionIHMFiltresy = 130;
+let positionIHMFiltresy = 175;
 
 let minWidth = 1000; // Largeur minimale du canvas
 let minHeight = 1000; // Hauteur minimale du canvas
@@ -339,8 +396,6 @@ let gridStartY = 0; // À mettre à jour si la grille ne commence pas à y=0
 let gridEndX = gridStartX + elementsPerRow * totalWidth;
 let gridEndY = gridStartY + rownumber * (squareSize * scaling);
 
-let checkboxes = [];
-let stringPatternChecked = "";
 
 function preload() {
 	exempleBlocContinu = loadImage("blocs-6_19.png");
@@ -348,8 +403,8 @@ function preload() {
 	exemplePattern01 = loadImage("blocs-2_22.png");
 	exemplePattern02 = loadImage("bloc-1-3.png");
 	exemplePattern1 = loadImage("blocs-2_04.png");
-	exemplePattern2 = loadImage("blocs-2_05.png");
-	exemplePattern3 = loadImage("blocs-2_23.png");
+	exemplePattern2 = loadImage("blocs-2_23.png");
+	exemplePattern3 = loadImage("blocs-2_05.png");
 	exemplePattern4 = loadImage("blocs-2_08.png");
 	exemplePatternm11 = loadImage("bloc-0.png");
 	exemplePatternm12 = loadImage("bloc-1-4.png");
@@ -365,15 +420,18 @@ function setup() {
   sliderNombreCarresLegende = createP(`${sliderNombreCarres.value()}`);
   sliderNombreCarresLegende.position(positionIHMx + 50, positionIHMy + 20);
 
+  checkboxRotations = createCheckbox('Enlever rotations', false);
+  checkboxRotations.position(positionIHMx + 20, positionIHMy + 80);
+
+  radioTypeBlocsLegende = createP();
+  radioTypeBlocsLegende.position(positionIHMx + 50, positionIHMy + 70+30);
+  radioTypeBlocsLegende.html(`Type de blocs affichés`);
   radioTypeBlocs = createRadio();
   radioTypeBlocs.option('Tous');
   radioTypeBlocs.option('Continus');
   radioTypeBlocs.option('Brisés');
-  radioTypeBlocs.position(positionIHMx + 20, positionIHMy + 100);
+  radioTypeBlocs.position(positionIHMx + 20, positionIHMy + 100+30);
   radioTypeBlocs.selected('Tous');
-  radioTypeBlocsLegende = createP();
-  radioTypeBlocsLegende.position(positionIHMx + 50, positionIHMy + 70);
-  radioTypeBlocsLegende.html(`Type de blocs affichés`);
 
   let legendeFiltres = createP();
   legendeFiltres.position(positionIHMx + 50, positionIHMy + positionIHMFiltresy);
@@ -393,11 +451,11 @@ function setup() {
   checkboxes[5].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 130);
   
   nombreBlocs = createP();
-  nombreBlocs.position(positionIHMx+50, positionIHMy +270);
+  nombreBlocs.position(positionIHMx+40, positionIHMy +330);
   nombreBlocs.html(`Nombre de blocs affichés : `);
 
   let exportButton = createButton('Exporter tous les blocs affichés');
-  exportButton.position(positionIHMx+30, positionIHMy+310);
+  exportButton.position(positionIHMx+30, positionIHMy+365);
   exportButton.mousePressed(exportAllBlocks);
 
   canvasWidth = elementsPerRow * (squareSize * scaling + lineWidth) - lineWidth;
@@ -424,6 +482,12 @@ function draw() {
   tousLesBlocs.reverse();
   blocsContinus.reverse();
   blocsBrises.reverse();
+
+  if (checkboxRotations.checked()) {
+    tousLesBlocs = filtrerBlocsParClasseDeRotation(tousLesBlocs);
+    blocsContinus = filtrerBlocsParClasseDeRotation(blocsContinus);
+    blocsBrises = filtrerBlocsParClasseDeRotation(blocsBrises);
+  }
 
   // Filtre sur le type de blocs affichés
   switch (radioTypeBlocs.value()) {
@@ -475,16 +539,16 @@ function draw() {
 
   // Mise à jour de l'affichage
   background(15); // Nettoie le canvas avant de redessiner
-  image(exempleBlocContinu,383,400);
-  image(exempleBlocBrise,447,400);
-  image(exemplePattern01,383,442);
-  image(exemplePattern02,403,442);
-  image(exemplePattern1,383,462);
-  image(exemplePattern2,383,482);
-  image(exemplePattern3,383,502);
-  image(exemplePattern4,383,522);
-  image(exemplePatternm11,383,542);
-  image(exemplePatternm12,403,542);
+  image(exempleBlocContinu,383,430);
+  image(exempleBlocBrise,447,430);
+  image(exemplePattern01,383,positionIHMFiltresy + 282 +30);
+  image(exemplePattern02,403,positionIHMFiltresy + 282 +30);
+  image(exemplePattern1,383,positionIHMFiltresy + 302 +30);
+  image(exemplePattern2,383,positionIHMFiltresy + 322 +30);
+  image(exemplePattern3,383,positionIHMFiltresy + 342 +30);
+  image(exemplePattern4,383,positionIHMFiltresy + 362 +30);
+  image(exemplePatternm11,383,positionIHMFiltresy + 382 +30);
+  image(exemplePatternm12,403,positionIHMFiltresy + 382 +30);
 
   for (let l = 0; l < rownumber; l++) {
     for (let k = 0; k < elementsPerRow; k++) {
