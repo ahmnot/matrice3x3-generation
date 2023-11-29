@@ -388,7 +388,7 @@ function setup() {
 
   cnv = createCanvas(canvasWidth, canvasHeight);
   cnv.id('mycanvas');
-  background(0);
+  background(15);
 }
 
 function draw() {
@@ -454,7 +454,7 @@ function draw() {
   resizeCanvas(canvasWidth, canvasHeight);
 
   // Mise à jour de l'affichage
-  background(10); // Nettoie le canvas avant de redessiner
+  background(15); // Nettoie le canvas avant de redessiner
   image(exempleBlocContinu,383,400);
   image(exempleBlocBrise,447,400);
   image(exemplePattern0,383,442);
@@ -507,24 +507,24 @@ function drawHoverSquare() {
 }
 
 /**
- * 
+ * Gère l'export d'un bloc au clic.
  */
 function mouseClicked() {
   let gridX = Math.floor(mouseX / totalWidth);
   let gridY = Math.floor(mouseY / (squareSize * scaling));
-  // Vérifiez si le clic est à l'intérieur de la grille
+  // Vérifie si le clic est à l'intérieur de la grille
   if (mouseX >= gridStartX && mouseX < gridEndX && mouseY >= gridStartY && mouseY < gridEndY) {
-      // Obtenez l'index du bloc sur lequel l'utilisateur a cliqué
+      // Obtient l'index du bloc sur lequel l'utilisateur a cliqué
       let index = gridY * elementsPerRow + gridX;
       if (index < blocsAffiches.length) {
           let bloc = blocsAffiches[index];
 
-          // Créez un graphique pour dessiner le bloc
+          // Crée un graphique pour dessiner le bloc
           let pg = createGraphics(squareSize * scaling, squareSize * scaling);
-          pg.background(0); // Fond blanc ou toute autre couleur de fond souhaitée
+          pg.background(0);
           pg.noFill();
 
-          // Dessinez le bloc sur le graphique
+          // Dessine le bloc sur le graphique
           for (let i = 0; i < squareSize; i++) {
               for (let j = 0; j < squareSize; j++) {
                   if (bloc[i][j] === 1) {
@@ -535,7 +535,7 @@ function mouseClicked() {
               }
           }
 
-          // Enregistrez le graphique en tant que fichier PNG
+          // Enregistre le graphique en tant que fichier PNG
           save(pg, `blocs-${sliderNombreCarres.value()}_${index}.png`);
       }
   }
