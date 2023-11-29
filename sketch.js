@@ -338,7 +338,7 @@ let gridStartY = 0; // À mettre à jour si la grille ne commence pas à y=0
 let gridEndX = gridStartX + elementsPerRow * totalWidth;
 let gridEndY = gridStartY + rownumber * (squareSize * scaling);
 
-let cnv;
+let stringSelectedPatterns = "";
 
 function preload() {
 	exempleBlocContinu = loadImage("blocs-6_19.png");
@@ -404,8 +404,7 @@ function setup() {
   canvasWidth = max(canvasWidth, minWidth);
   canvasHeight = max(canvasHeight, minHeight);
 
-  cnv = createCanvas(canvasWidth, canvasHeight);
-  cnv.id('mycanvas');
+  createCanvas(canvasWidth, canvasHeight);
   background(15);
 }
 
@@ -444,21 +443,27 @@ function draw() {
   // Filtre sur les différents patterns présents dans les blocs
   if (checkbox0.checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau0);
+    stringSelectedPatterns += "0";
   }
   if (checkbox1.checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau1);
+    stringSelectedPatterns += "1";
   }
   if (checkbox2.checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau2);
+    stringSelectedPatterns += "2";
   }
   if (checkbox3.checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau3);
+    stringSelectedPatterns += "3";
   }
   if (checkbox4.checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveau4);
+    stringSelectedPatterns += "4";
   }
   if (checkbom1.checked()) {
     blocsAffiches = blocsAffiches.filter(verifierNiveaum1);
+    stringSelectedPatterns += "m1";
   }
 
   nombreBlocs.html(`Nombre de blocs affichés : ${blocsAffiches.length}`);
@@ -578,7 +583,6 @@ function exportAllBlocks() {
         }
       }
     }
-    console.log("toto");
     // Ajoutez le PNG au ZIP
     pg.canvas.toBlob(function(blob) {
       zip.file(`bloc-${sliderNombreCarres.value()}-${index}.png`, blob);
