@@ -401,6 +401,9 @@ let gridStartY = 0; // À mettre à jour si la grille ne commence pas à y=0
 let gridEndX = gridStartX + elementsPerRow * totalWidth;
 let gridEndY = gridStartY + rownumber * (squareSize * scaling);
 
+let isMenuBlocsShown = false;
+
+let couleurBackground = 15;
 
 function preload() {
   exempleBlocContinu = loadImage("blocs-6_19.png");
@@ -436,15 +439,15 @@ function setup() {
   canvasHeight = max(canvasHeight, minHeight);
 
   createCanvas(canvasWidth, canvasHeight);
-  background(15);
+  background(couleurBackground);
 }
 
 function draw() {
   if (radioChoixDuMode.value() === "Génération exhaustive de blocs") {
-    if (!isMenuBlocsInitialized) {
-      initializeMenuBlocs();
+    if (!isMenuBlocsShown) {
+      showMenuBlocs();
     }
-    if (isMenuBlocsInitialized) {
+    else if (isMenuBlocsShown) {
       let val = sliderNombreCarres.value();
       sliderNombreCarresLegende.html(`Carrés blancs par bloc : ${val}`);
       // Réinitialisation des listes
@@ -502,7 +505,6 @@ function draw() {
         blocsAffiches = blocsAffiches.filter(verifierNiveaum1);
       }
   
-  
       nombreBlocs.html(`Nombre de blocs affichés : ${blocsAffiches.length}`);
   
       elementsPerRow = Math.ceil(blocsAffiches.length / rownumber);
@@ -514,7 +516,7 @@ function draw() {
       resizeCanvas(canvasWidth, canvasHeight);
   
       // Mise à jour de l'affichage
-      background(15); // Nettoie le canvas avant de redessiner
+      background(couleurBackground); // Nettoie le canvas avant de redessiner
       image(exempleBlocContinu, 383, positionIHMy + 130);
       image(exempleBlocBrise, 447, positionIHMy + 130);
       image(exemplePattern01, 383, positionIHMFiltresy + positionIHMy + 12);
@@ -551,18 +553,12 @@ function draw() {
       }
   
       drawHoverSquare();
-  
     }
   } else {
-    if (!isMenuBlocsRemoved) {
-      background(15);
-      removeMenuBlocs();  
-    }
+      background(couleurBackground);
+      hideMenuBlocs();  
   }
 }
-
-let isMenuBlocsInitialized = false;
-let isMenuBlocsRemoved = false;
 
 function initializeMenuBlocs() {
   tutoTexte = createP();
@@ -611,32 +607,53 @@ function initializeMenuBlocs() {
   exportButton = createButton('Exporter tous les blocs affichés');
   exportButton.position(positionIHMx + 30, positionIHMy + 365);
   exportButton.mousePressed(exportAllBlocks);
-  isMenuBlocsInitialized = true;
-  isMenuBlocsRemoved = false;
+  isMenuBlocsShown = true;
 }
 
-function removeMenuBlocs() {
-  tutoTexte.remove();
-  sliderNombreCarres.remove();
-  sliderNombreCarresLegende.remove();
+function showMenuBlocs() {
+  tutoTexte.show();
+  sliderNombreCarres.show();
+  sliderNombreCarresLegende.show();
 
-  checkboxRotations.remove();
+  checkboxRotations.show();
+  
+  radioTypeBlocs.show();
+  radioTypeBlocsLegende.show();
+  legendeFiltres.show();
+  checkboxes[0].show();
+  checkboxes[1].show();
+  checkboxes[2].show();
+  checkboxes[3].show();
+  checkboxes[4].show();
+  checkboxes[5].show();
+
+  nombreBlocs.show();
+
+  exportButton.show();
+  isMenuBlocsShown = true;
+}
+
+function hideMenuBlocs() {
+  tutoTexte.hide();
+  sliderNombreCarres.hide();
+  sliderNombreCarresLegende.hide();
+
+  checkboxRotations.hide();
   
   radioTypeBlocs.hide();
-  radioTypeBlocsLegende.remove();
-  legendeFiltres.remove();
-  checkboxes[0].remove();
-  checkboxes[1].remove();
-  checkboxes[2].remove();
-  checkboxes[3].remove();
-  checkboxes[4].remove();
-  checkboxes[5].remove();
+  radioTypeBlocsLegende.hide();
+  legendeFiltres.hide();
+  checkboxes[0].hide();
+  checkboxes[1].hide();
+  checkboxes[2].hide();
+  checkboxes[3].hide();
+  checkboxes[4].hide();
+  checkboxes[5].hide();
 
-  nombreBlocs.remove();
+  nombreBlocs.hide();
 
-  exportButton.remove();
-  isMenuBlocsInitialized = false;
-  isMenuBlocsRemoved = true;
+  exportButton.hide();
+  isMenuBlocsShown = false;
 }
 
 /**
