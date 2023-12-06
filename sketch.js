@@ -32,9 +32,8 @@ import saveAs from "libraries/FileSaver.js";
  * 
  */
 
+let tousLesBinaires = [];
 let tousLesBlocs = [];
-let blocsContinus = [];
-let blocsBrises = [];
 
 /**
  * Utilitaire de transposition d'une matrice
@@ -435,50 +434,81 @@ function afficherListeBlocsDansConsole(listeBlocs) {
 }
 
 /**
- * Fonction qui sert à générer les "listes de listes de listes" que sont les matrices,
- * à partir d'un nombre binaire
- * @param {*} n nombre total de chiffres du nombre binaire
- * @param {*} k nombre de "1" du nombre binaire
- * @param {*} prefixe contenu du résultat
- * @param {*} blocSize taille du bloc
+ * Fonction qui génère tous les binaires, de "000000000" à "111111111" (de 0 à 511).
+ */
+function genererBinaires9Chiffres() {
+  let binaires = [];
+  for (let i = 0; i < 512; i++) { // 2^9 = 512
+    let binaire = i.toString(2); // Convertir le nombre en binaire
+    while (binaire.length < 9) {
+      binaire = "0" + binaire; // Ajouter des zéros au début pour avoir 9 chiffres
+    }
+    binaires.push(binaire);
+  }
+  return binaires;
+}
+
+tousLesBinaires = genererBinaires9Chiffres();
+
+/**
+ * Fonction qui renvoie une sous-liste de binaires à partir de listeBinaires
+ * qui ont une quantité nombreUns de "1" dans leurs chaînes de caractère
+ * @param {*} listeBinaires 
+ * @param {*} nombreUns 
  * @returns 
  */
-function genererCombinaisons(n, k, prefixe = '', blocSize = 3) {
-  if (k === 0) {
-    let bloc = genererBloc(prefixe, blocSize);
-    tousLesBlocs.push(bloc);
+function filtrerParNombreDeUns(listeBinaires, nombreUns) {
+  return listeBinaires.filter(binaire => 
+    binaire.split('').filter(caractere => caractere === '1').length === nombreUns
+  );
+}
 
-    if (areOnesConnected(bloc)) {
-      blocsContinus.push(bloc);
-    } else {
-      blocsBrises.push(bloc);
+function genererTousLesBlocs(listeBinaires) {
+  let blocsResultat = [];
+  listeBinaires.forEach(unBinaire => {
+    blocsResultat.push(genererBloc(unBinaire));
+  });
+  return blocsResultat;
+}
+
+let nombreUns = 5; // Par exemple, pour filtrer les binaires contenant 5 '1'
+let binairesAvecCinqUns = filtrerParNombreDeUns(tousLesBinaires, nombreUns);
+
+function filtrerBlocsContinus(listeBlocs){
+  let blocsResultat = [];
+  listeBlocs.forEach(unBloc => {
+    if (areOnesConnected(unBloc)) {
+      blocsResultat.push(unBloc);
     }
+  });
+  return blocsResultat;
+}
 
-    return;
-  }
-  if (n === 0) {
-    return;
-  }
-  genererCombinaisons(n - 1, k, prefixe + '0', blocSize);
-  genererCombinaisons(n - 1, k - 1, prefixe + '1', blocSize);
+function filtrerBlocsBrises(listeBlocs){
+  let blocsResultat = [];
+  listeBlocs.forEach(unBloc => {
+    if (!areOnesConnected(unBloc)) {
+      blocsResultat.push(unBloc);
+    }
+  });
+  return blocsResultat;
 }
 
 /**
  * Fonction qui génère un bloc à partir d'un nombre binaire
  * @param {*} binaire un binaire
- * @param {*} blocSize taille du bloc
  * @returns 
  */
-function genererBloc(binaire, blocSize) {
-  //Ajout préalable de 0 à la fin des binaires
+function genererBloc(binaire) {
+  //Ajout préalable de 0 à la fin des binaires si besoin
   while (binaire.length != 9) {
     binaire += "0";
   }
   let bloc = [];
   let compteur = 0;
-  for (let i = 0; i < blocSize; i++) {
+  for (let i = 0; i < 3; i++) {
     let row = [];
-    for (let j = 0; j < blocSize; j++) {
+    for (let j = 0; j < 3; j++) {
       row.push(parseInt(binaire.charAt(compteur)));
       compteur++;
     }
@@ -487,18 +517,11 @@ function genererBloc(binaire, blocSize) {
   return bloc;
 }
 
-/**
- * Fonction qui génère toutes les combinaisons (de 0 à 9)
- * @param {*} nombreCarres 
- */
-function genererToutesCombinaisons(nombreCarres) {
-  
-}
-
 let nombreCarresBlancs = 5;
 // Appel de la fonction avec n=9 (nombre de chiffres) et k=5 (nombre de "1")
-genererCombinaisons(9, nombreCarresBlancs);
-
+tousLesBlocs = genererTousLesBlocs(tousLesBinaires);
+let blocsContinus = filtrerBlocsContinus(tousLesBlocs);
+let blocsBrises = filtrerBlocsBrises(tousLesBlocs);
 // Pour des raisons d'affichage, je reverse les listes :
 tousLesBlocs.reverse();
 blocsContinus.reverse();
@@ -603,7 +626,9 @@ function draw() {
       blocsBrises = [];
   
       // Génération des nouveaux blocs
-      genererCombinaisons(9, val);
+      tousLesBlocs = genererTousLesBlocs(filtrerParNombreDeUns(tousLesBinaires, val));
+      blocsContinus = filtrerBlocsContinus(tousLesBlocs);
+      blocsBrises = filtrerBlocsBrises(tousLesBlocs);
   
       tousLesBlocs.reverse();
       blocsContinus.reverse();
@@ -705,7 +730,7 @@ function draw() {
         decalageHorizontal = 0; // Réinitialiser le décalage pour chaque ligne
         // Dessiner la ligne horizontale après chaque ligne de blocs
         if (l < rownumber - 1) { // Pas de ligne après la dernière rangée
-          stroke(0); // Couleur de la ligne
+          stroke(couleurBackground); // Couleur de la ligne
           strokeWeight(horizontalLineWidth);
           line(0, (l + 1) * squareSize * scaling, canvasWidth, (l + 1) * squareSize * scaling);
         }
