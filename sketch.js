@@ -7,6 +7,31 @@ import saveAs from "libraries/FileSaver.js";
 // L'objectif de ce code est de générer l'exhaustivité de ces blocs et les classer.
 // Le format des blocs : [[1,1,1],[1,1,0],[0,0,0]].
 // let tousLesBlocs = [[[1,1,1],[1,1,0],[0,0,0]], [[1,1,1],[1,0,1],[0,0,0]], ...];
+
+
+
+/**
+ * DEFINITION DES CARRES EN COURS
+ * Définition : un "carré" est un objet, 
+ * qui est la base constitutive d'un bloc. 
+ * Un carré est lui-même constitué :
+ * - D'un booléen, true si le carré est blanc,
+ *  false si le carré est noir. 
+ *  Si le carré est blanc, on dit qu'il est "accessible".
+ *  Si le carré est noir, on dit qu'il est "inaccessible".
+ * - d'une liste de 4 éléments, constituée de 0 ou de 1. 
+ *  Cette liste représente les 4 bords du carré, dans
+ *  l'ordre : gauche, haut, droite, bas.
+ *  
+ *  
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
 let tousLesBlocs = [];
 let blocsContinus = [];
 let blocsBrises = [];
@@ -48,8 +73,31 @@ function rotateBlocMinus90(matrix) {
   return matrix[0].map((val, index) => matrix.map(row => row[row.length - 1 - index]));
 }
 
-function oppositeBloc(matrix) {
+/**
+ * Fonction qui change les 0 en 1 et les 1 en 0 de la matrice en paramètre.
+ * @param {*} matrix 
+ * @returns 
+ */
+function oppositionnerMatrice(matrix) {
   return matrix.map(row => row.map(element => (element === 0 ? 1 : 0)));
+}
+
+/**
+ * Génère la symétrie horizontale d'une matrice.
+ * @param {*} matrix 
+ * @returns 
+ */
+function symetriserHorizontalement(matrix) {
+  return matrix.slice().reverse();
+}
+
+/**
+ * Génère la symétrie verticale d'une matrice.
+ * @param {*} matrix 
+ * @returns 
+ */
+function symetriserVerticalement(matrix) {
+  return matrix.map(row => row.slice().reverse());
 }
 
 /**
@@ -60,6 +108,16 @@ function oppositeBloc(matrix) {
  */
 function areMatricesEqual(matrix1, matrix2) {
   return matrix1.every((row, rowIndex) => row.every((val, colIndex) => val === matrix2[rowIndex][colIndex]));
+}
+
+/**
+ * Compare deux lignes (tableaux) pour vérifier si elles sont identiques.
+ * @param {*} ligne1 
+ * @param {*} ligne2 
+ * @returns 
+ */
+function areLignesEgales(ligne1, ligne2) {
+  return ligne1.length === ligne2.length && ligne1.every((val, index) => val === ligne2[index]);
 }
 
 /**
@@ -104,6 +162,75 @@ function filtrerBlocsParClasseDeRotation(listeBlocs = []) {
   return listeResultat;
 }
 
+/**
+ * Vérifie si une matrice a une symétrie axiale horizontale.
+ * @param {*} matrix 
+ * @returns 
+ */
+function aSymetrieHorizontale(matrix) {
+  for (let i = 0; i < Math.floor(matrix.length / 2); i++) {
+    if (!areLignesEgales(matrix[i], matrix[matrix.length - 1 - i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Vérifie si une matrice a une symétrie axiale verticale.
+ * @param {*} matrix 
+ * @returns 
+ */
+function aSymetrieVerticale(matrix) {
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix[i].length / 2; j++) {
+      if (matrix[i][j] !== matrix[i][matrix[i].length - 1 - j]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
+ * Vérifie si 2 blocs sont équivalents par symétrie axiale, en prenant en compte les rotations.
+ * @param {*} bloc1 
+ * @param {*} bloc2 
+ * @returns 
+ */
+function sontEquivalentParSymetrieRotation(bloc1, bloc2) {
+  let rotation = bloc2;
+  for (let i = 0; i < 4; i++) {
+    if (areMatricesEqual(bloc1, symetriserHorizontalement(rotation)) || 
+        areMatricesEqual(bloc1, symetriserVerticalement(rotation))) {
+      return true;
+    }
+    rotation = rotateBlocPlus90(rotation);
+  }
+  return false;
+}
+
+/**
+ * Filtrer les blocs pour ne conserver qu'un exemplaire unique par "classe d'équivalence de symétrie-rotation".
+ */
+function filtrerBlocsParClasseDeSymetrieRotation(listeBlocs = []) {
+  let listeResultat = [];
+  
+  listeBlocs.forEach(bloc => {
+    let estUnique = true;
+    for (let autreBloc of listeResultat) {
+      if (sontEquivalentParSymetrieRotation(bloc, autreBloc)) {
+        estUnique = false;
+        break;
+      }
+    }
+    if (estUnique) {
+      listeResultat.push(bloc);
+    }
+  });
+
+  return listeResultat;
+}
 
 function areOnesConnected(matrice) {
   // Directions pour explorer les voisins : bas, haut, droite, gauche
@@ -379,6 +506,7 @@ let tutoTexte;
 let sliderNombreCarres;
 let sliderNombreCarresLegende;
 let checkboxRotations;
+let checkboxSymetries;
 let radioTypeBlocs;
 let radioTypeBlocsLegende;
 let legendeFiltres;
@@ -466,6 +594,12 @@ function draw() {
         tousLesBlocs = filtrerBlocsParClasseDeRotation(tousLesBlocs);
         blocsContinus = filtrerBlocsParClasseDeRotation(blocsContinus);
         blocsBrises = filtrerBlocsParClasseDeRotation(blocsBrises);
+      }
+  
+      if (checkboxSymetries.checked()) {
+        tousLesBlocs = filtrerBlocsParClasseDeSymetrieRotation(tousLesBlocs);
+        blocsContinus = filtrerBlocsParClasseDeSymetrieRotation(blocsContinus);
+        blocsBrises = filtrerBlocsParClasseDeSymetrieRotation(blocsBrises);
       }
   
       // Filtre sur le type de blocs affichés
@@ -573,6 +707,9 @@ function initializeMenuBlocs() {
   checkboxRotations = createCheckbox('Enlever rotations', false);
   checkboxRotations.position(positionIHMx + 20, positionIHMy + 80);
 
+  checkboxSymetries = createCheckbox('Enlever symétries (dont symétries-rotations)', false);
+  checkboxSymetries.position(positionIHMx + 140, positionIHMy + 80);
+
   radioTypeBlocsLegende = createP();
   radioTypeBlocsLegende.position(positionIHMx + 50, positionIHMy + 70 + 30);
   radioTypeBlocsLegende.html(`Type de blocs affichés`);
@@ -616,6 +753,7 @@ function showMenuBlocs() {
   sliderNombreCarresLegende.show();
 
   checkboxRotations.show();
+  checkboxSymetries.show();
   
   radioTypeBlocs.show();
   radioTypeBlocsLegende.show();
@@ -639,6 +777,7 @@ function hideMenuBlocs() {
   sliderNombreCarresLegende.hide();
 
   checkboxRotations.hide();
+  checkboxSymetries.hide();
   
   radioTypeBlocs.hide();
   radioTypeBlocsLegende.hide();
