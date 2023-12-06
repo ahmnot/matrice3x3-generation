@@ -232,6 +232,12 @@ function filtrerBlocsParClasseDeSymetrieRotation(listeBlocs = []) {
   return listeResultat;
 }
 
+/**
+ * Vérifie si les carrés blancs (=1) sont connectés entre eux 
+ * dans le bloc passé en paramètre.
+ * @param {*} matrice 
+ * @returns 
+ */
 function areOnesConnected(matrice) {
   // Directions pour explorer les voisins : bas, haut, droite, gauche
   const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
@@ -279,9 +285,9 @@ function areOnesConnected(matrice) {
   return premierUnTrouve;
 }
 
-// Vérifie si le bloc répond aux critères du niveau 0
-function verifierNiveau0(bloc) {
-  // Niveau 1: Carrés blancs adjacents directement ou en diagonale sans sauter par-dessus un carré noir
+// Vérifie si le bloc répond aux critères du pattern 0
+function verifierPattern0(bloc) {
+  // Pattern 1: Carrés blancs adjacents directement ou en diagonale sans sauter par-dessus un carré noir
   return bloc.flat().filter(val => val === 1).length === 1 ||
     bloc.some((ligne, i) =>
       ligne.some((val, j) =>
@@ -293,9 +299,9 @@ function verifierNiveau0(bloc) {
     );
 }
 
-// Vérifie si le bloc répond aux critères du niveau 1
-function verifierNiveau1(bloc) {
-  // Niveau 1: Carrés blancs adjacents directement ou en diagonale sans sauter par-dessus un carré noir
+// Vérifie si le bloc répond aux critères du pattern 1
+function verifierPattern1(bloc) {
+  // Pattern 1: Carrés blancs adjacents directement ou en diagonale sans sauter par-dessus un carré noir
   return bloc.some((ligne, i) =>
     ligne.some((val, j) =>
       val === 1 && (
@@ -306,9 +312,9 @@ function verifierNiveau1(bloc) {
   );
 }
 
-// Vérifie si le bloc répond aux critères du niveau 2
-function verifierNiveau2(bloc) {
-  // Niveau 2: Carrés blancs séparés par un carré sur la même ligne ou colonne
+// Vérifie si le bloc répond aux critères du pattern 2
+function verifierPattern2(bloc) {
+  // Pattern 2: Carrés blancs séparés par un carré sur la même ligne ou colonne
   return bloc.some((ligne, i) =>
     ligne.some((val, j) =>
       val === 1 && (
@@ -321,8 +327,8 @@ function verifierNiveau2(bloc) {
 }
 
 
-// Vérifie si le bloc répond aux critères du niveau 3
-function verifierNiveau3(bloc) {
+// Vérifie si le bloc répond aux critères du pattern 3
+function verifierPattern3(bloc) {
   let positions = [];
 
   // Trouver les positions de tous les "1" dans la matrice
@@ -354,9 +360,9 @@ function verifierNiveau3(bloc) {
   return false;
 }
 
-// Vérifie si le bloc répond aux critères du niveau 4
-function verifierNiveau4(bloc) {
-  // Niveau 4: Carrés blancs dans des coins opposés
+// Vérifie si le bloc répond aux critères du pattern 4
+function verifierPattern4(bloc) {
+  // Pattern 4: Carrés blancs dans des coins opposés
   // Vérifier les coins opposés sur les deux diagonales
   let coinHautGauche = bloc[0][0];
   let coinBasDroit = bloc[2][2];
@@ -371,7 +377,7 @@ function verifierNiveau4(bloc) {
   return diagonale1 || diagonale2;
 }
 
-function verifierNiveaum1(bloc) {
+function verifierPatternm1(bloc) {
   return JSON.stringify(bloc) === JSON.stringify([
     [0, 0, 0],
     [0, 0, 0],
@@ -395,12 +401,12 @@ afficherBlocDansConsole(blocExemple);
 
 console.log("1 connectés = " + areOnesConnected(blocExemple));
 
-console.log("niveau 0 = " + verifierNiveau0(blocExemple));
-console.log("niveau 1 = " + verifierNiveau1(blocExemple));
-console.log("niveau 2 = " + verifierNiveau2(blocExemple));
-console.log("niveau 3 = " + verifierNiveau3(blocExemple));
-console.log("niveau 4 = " + verifierNiveau4(blocExemple));
-console.log("niveau -1 = " + verifierNiveaum1(blocExemple));
+console.log("pattern 0 = " + verifierPattern0(blocExemple));
+console.log("pattern 1 = " + verifierPattern1(blocExemple));
+console.log("pattern 2 = " + verifierPattern2(blocExemple));
+console.log("pattern 3 = " + verifierPattern3(blocExemple));
+console.log("pattern 4 = " + verifierPattern4(blocExemple));
+console.log("pattern -1 = " + verifierPatternm1(blocExemple));
 
 
 /**
@@ -456,6 +462,7 @@ function genererCombinaisons(n, k, prefixe = '', blocSize = 3) {
   genererCombinaisons(n - 1, k, prefixe + '0', blocSize);
   genererCombinaisons(n - 1, k - 1, prefixe + '1', blocSize);
 }
+
 /**
  * Fonction qui génère un bloc à partir d'un nombre binaire
  * @param {*} binaire un binaire
@@ -480,6 +487,14 @@ function genererBloc(binaire, blocSize) {
   return bloc;
 }
 
+/**
+ * Fonction qui génère toutes les combinaisons (de 0 à 9)
+ * @param {*} nombreCarres 
+ */
+function genererToutesCombinaisons(nombreCarres) {
+  
+}
+
 let nombreCarresBlancs = 5;
 // Appel de la fonction avec n=9 (nombre de chiffres) et k=5 (nombre de "1")
 genererCombinaisons(9, nombreCarresBlancs);
@@ -492,11 +507,13 @@ blocsBrises.reverse();
 let blocsAffiches = [];
 
 let scaling = 24;
-let rownumber = 6;
+let rownumber = 5;
 let elementsPerRow = Math.ceil(tousLesBlocs.length / rownumber);
 let squareSize = 3; // Taille du carré (3x3, 4x4, etc.)
-let lineWidth = 1; // Largeur de la ligne verticale
-let canvasWidth = elementsPerRow * (squareSize * scaling + lineWidth) - lineWidth;
+let verticalLineWidth = 1; // Largeur de la ligne verticale
+let horizontalLineWidth = 1;
+
+let canvasWidth = elementsPerRow * (squareSize * scaling + verticalLineWidth) - verticalLineWidth;
 let canvasHeight = rownumber * squareSize * scaling;
 let decalageHorizontal = 0;
 
@@ -505,6 +522,9 @@ let radioChoixDuMode;
 let tutoTexte;
 let sliderNombreCarres;
 let sliderNombreCarresLegende;
+
+
+let checkboxAfficherTout;
 let checkboxRotations;
 let checkboxSymetries;
 let radioTypeBlocs;
@@ -516,13 +536,12 @@ let nombreBlocs;
 let exportButton;
 
 let positionIHMx = 300;
-let positionIHMy = 600;
-let positionIHMFiltresy = 175;
+let positionIHMy = 500;
 
 let minWidth = 1000; // Largeur minimale du canvas
-let minHeight = 1000; // Hauteur minimale du canvas
+let minHeight = 1500; // Hauteur minimale du canvas
 
-let totalWidth = squareSize * scaling + lineWidth;
+let totalWidth = squareSize * scaling + verticalLineWidth;
 let gridStartX = 0; // À mettre à jour si la grille ne commence pas à x=0
 let gridStartY = 0; // À mettre à jour si la grille ne commence pas à y=0
 
@@ -560,7 +579,7 @@ function setup() {
     initializeMenuBlocs();  
   }
 
-  canvasWidth = elementsPerRow * (squareSize * scaling + lineWidth) - lineWidth;
+  canvasWidth = elementsPerRow * (squareSize * scaling + verticalLineWidth) - verticalLineWidth;
   canvasHeight = rownumber * squareSize * scaling;
 
   canvasWidth = max(canvasWidth, minWidth);
@@ -621,28 +640,28 @@ function draw() {
   
       // Filtre sur les différents patterns présents dans les blocs
       if (checkboxes[0].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierNiveau0);
+        blocsAffiches = blocsAffiches.filter(verifierPattern0);
       }
       if (checkboxes[1].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierNiveau1);
+        blocsAffiches = blocsAffiches.filter(verifierPattern1);
       }
       if (checkboxes[2].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierNiveau2);
+        blocsAffiches = blocsAffiches.filter(verifierPattern2);
       }
       if (checkboxes[3].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierNiveau3);
+        blocsAffiches = blocsAffiches.filter(verifierPattern3);
       }
       if (checkboxes[4].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierNiveau4);
+        blocsAffiches = blocsAffiches.filter(verifierPattern4);
       }
       if (checkboxes[5].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierNiveaum1);
+        blocsAffiches = blocsAffiches.filter(verifierPatternm1);
       }
   
       nombreBlocs.html(`Nombre de blocs affichés : ${blocsAffiches.length}`);
   
       elementsPerRow = Math.ceil(blocsAffiches.length / rownumber);
-      canvasWidth = elementsPerRow * (squareSize * scaling + lineWidth) - lineWidth;
+      canvasWidth = elementsPerRow * (squareSize * scaling + verticalLineWidth) - verticalLineWidth;
       canvasHeight = rownumber * squareSize * scaling;
       canvasWidth = max(canvasWidth, minWidth);
       canvasHeight = max(canvasHeight, minHeight);
@@ -653,14 +672,14 @@ function draw() {
       background(couleurBackground); // Nettoie le canvas avant de redessiner
       image(exempleBlocContinu, 383, positionIHMy + 130);
       image(exempleBlocBrise, 447, positionIHMy + 130);
-      image(exemplePattern01, 383, positionIHMFiltresy + positionIHMy + 12);
-      image(exemplePattern02, 403, positionIHMFiltresy + positionIHMy + 12);
-      image(exemplePattern1, 383, positionIHMFiltresy + positionIHMy + 32);
-      image(exemplePattern2, 383, positionIHMFiltresy + positionIHMy + 52);
-      image(exemplePattern3, 383, positionIHMFiltresy + positionIHMy + 72);
-      image(exemplePattern4, 383, positionIHMFiltresy + positionIHMy + 92);
-      image(exemplePatternm11, 383, positionIHMFiltresy + positionIHMy + 112);
-      image(exemplePatternm12, 403, positionIHMFiltresy + positionIHMy + 112);
+      image(exemplePattern01, 383,  positionIHMy + 175 + 12);
+      image(exemplePattern02, 403,  positionIHMy + 175 +12);
+      image(exemplePattern1, 383,  positionIHMy + 175 +32);
+      image(exemplePattern2, 383,  positionIHMy + 175 +52);
+      image(exemplePattern3, 383,  positionIHMy + 175 +72);
+      image(exemplePattern4, 383,  positionIHMy + 175 +92);
+      image(exemplePatternm11, 383,  positionIHMy + 175 +112);
+      image(exemplePatternm12, 403,  positionIHMy + 175 +112);
   
       for (let l = 0; l < rownumber; l++) {
         for (let k = 0; k < elementsPerRow; k++) {
@@ -680,10 +699,16 @@ function draw() {
                 }
               }
             }
-            decalageHorizontal += squareSize * scaling + lineWidth;
+            decalageHorizontal += squareSize * scaling + verticalLineWidth;
           }
         }
         decalageHorizontal = 0; // Réinitialiser le décalage pour chaque ligne
+        // Dessiner la ligne horizontale après chaque ligne de blocs
+        if (l < rownumber - 1) { // Pas de ligne après la dernière rangée
+          stroke(0); // Couleur de la ligne
+          strokeWeight(horizontalLineWidth);
+          line(0, (l + 1) * squareSize * scaling, canvasWidth, (l + 1) * squareSize * scaling);
+        }
       }
   
       drawHoverSquare();
@@ -721,7 +746,7 @@ function initializeMenuBlocs() {
   radioTypeBlocs.selected('Tous');
 
   legendeFiltres = createP();
-  legendeFiltres.position(positionIHMx + 50, positionIHMy + positionIHMFiltresy);
+  legendeFiltres.position(positionIHMx + 50, positionIHMy + 175);
   legendeFiltres.html(`Application de filtres`);
 
   checkboxes[0] = createCheckbox('Pattern 0', false);
@@ -730,12 +755,12 @@ function initializeMenuBlocs() {
   checkboxes[3] = createCheckbox('Pattern 3', false);
   checkboxes[4] = createCheckbox('Pattern 4', false);
   checkboxes[5] = createCheckbox('Pattern -1', false);
-  checkboxes[0].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 30);
-  checkboxes[1].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 50);
-  checkboxes[2].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 70);
-  checkboxes[3].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 90);
-  checkboxes[4].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 110);
-  checkboxes[5].position(positionIHMx + 20, positionIHMy + positionIHMFiltresy + 130);
+  checkboxes[0].position(positionIHMx + 20, positionIHMy + 175 + 30);
+  checkboxes[1].position(positionIHMx + 20, positionIHMy + 175 + 50);
+  checkboxes[2].position(positionIHMx + 20, positionIHMy + 175 + 70);
+  checkboxes[3].position(positionIHMx + 20, positionIHMy + 175 + 90);
+  checkboxes[4].position(positionIHMx + 20, positionIHMy + 175 + 110);
+  checkboxes[5].position(positionIHMx + 20, positionIHMy + 175 + 130);
 
   nombreBlocs = createP();
   nombreBlocs.position(positionIHMx + 40, positionIHMy + 330);
