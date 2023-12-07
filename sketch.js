@@ -469,7 +469,7 @@ function shuffleArray(array) {
 }
 
 /**
- * Fonction qui renvoie une sous-liste de binaires à partir de listeBinaires
+ * Fonction qui renvoie une sous-liste de binaires, à partir de listeBinaires,
  * qui ont une quantité nombreUns de "1" dans leurs chaînes de caractère
  * @param {*} listeBinaires 
  * @param {*} nombreUns 
@@ -584,6 +584,7 @@ let radioTypeBlocs;
 let radioTypeBlocsLegende;
 let legendeFiltres;
 let checkboxes = [];
+let randomiserButton;
 let stringPatternChecked = "";
 let nombreBlocs;
 let exportButton;
@@ -650,6 +651,9 @@ function initializeMenuBlocs() {
   checkboxes[3].position(positionIHMx + 20, positionIHMy + 175 + 90);
   checkboxes[4].position(positionIHMx + 20, positionIHMy + 175 + 110);
   checkboxes[5].position(positionIHMx + 20, positionIHMy + 175 + 130);
+  
+  randomiserButton = createButton("Randomiser ordre des blocs");
+  randomiserButton.position(positionIHMx + 230, positionIHMy + 250);
 
   nombreBlocs = createP();
   nombreBlocs.position(positionIHMx + 40, positionIHMy + 330);
@@ -719,6 +723,11 @@ function draw() {
         tousLesBlocs = genererLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
         sliderNombreCarres.elt.disabled = false;
       }
+
+      randomiserButton.mousePressed(() => {
+        shuffleArray(tousLesBlocs);
+        console.log(tousLesBlocs);
+      });
 
       blocsContinus = filtrerBlocsContinus(tousLesBlocs);
       blocsBrises = filtrerBlocsBrises(tousLesBlocs);
