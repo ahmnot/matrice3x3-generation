@@ -286,7 +286,7 @@ function areOnesConnected(matrice) {
 
 // Vérifie si le bloc répond aux critères du pattern 0
 function verifierPattern0(bloc) {
-  // Pattern 1: Carrés blancs adjacents directement ou en diagonale sans sauter par-dessus un carré noir
+  // Pattern 0: Carrés blancs adjacents directement
   return bloc.flat().filter(val => val === 1).length === 1 ||
     bloc.some((ligne, i) =>
       ligne.some((val, j) =>
@@ -300,7 +300,7 @@ function verifierPattern0(bloc) {
 
 // Vérifie si le bloc répond aux critères du pattern 1
 function verifierPattern1(bloc) {
-  // Pattern 1: Carrés blancs adjacents directement ou en diagonale sans sauter par-dessus un carré noir
+  // Pattern 1: Carrés blancs adjacents en diagonale sans sauter par-dessus un carré noir
   return bloc.some((ligne, i) =>
     ligne.some((val, j) =>
       val === 1 && (
@@ -381,12 +381,7 @@ function verifierPatternm1(bloc) {
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0]
-  ]) ||
-    JSON.stringify(bloc) === JSON.stringify([
-      [0, 0, 0],
-      [0, 1, 0],
-      [0, 0, 0]
-    ]);
+  ]);
 }
 
 
@@ -463,6 +458,17 @@ function compterUns(binaire) {
 tousLesBinaires.sort((a, b) => compterUns(a) - compterUns(b));
 
 /**
+ * Sert à randomiser l'ordre des éléments d'une liste.
+ * @param {*} array 
+ */
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+/**
  * Fonction qui renvoie une sous-liste de binaires à partir de listeBinaires
  * qui ont une quantité nombreUns de "1" dans leurs chaînes de caractère
  * @param {*} listeBinaires 
@@ -475,7 +481,12 @@ function filtrerParNombreDeUns(listeBinaires, nombreUns) {
   );
 }
 
-function genererTousLesBlocs(listeBinaires) {
+/**
+ * Sert à transformer une liste de binaires en une liste de blocs.
+ * @param {*} listeBinaires 
+ * @returns 
+ */
+function genererLesBlocs(listeBinaires) {
   let blocsResultat = [];
   listeBinaires.forEach(unBinaire => {
     blocsResultat.push(genererBloc(unBinaire));
@@ -483,9 +494,11 @@ function genererTousLesBlocs(listeBinaires) {
   return blocsResultat;
 }
 
-let nombreUns = 5; // Par exemple, pour filtrer les binaires contenant 5 '1'
-let binairesAvecCinqUns = filtrerParNombreDeUns(tousLesBinaires, nombreUns);
-
+/**
+ * Sert à filtrer les "blocs continus" dans une liste de blocs.
+ * @param {*} listeBlocs 
+ * @returns 
+ */
 function filtrerBlocsContinus(listeBlocs){
   let blocsResultat = [];
   listeBlocs.forEach(unBloc => {
@@ -496,6 +509,11 @@ function filtrerBlocsContinus(listeBlocs){
   return blocsResultat;
 }
 
+/**
+ * Sert à filtrer les "blocs brisés" dans une liste de blocs.
+ * @param {*} listeBlocs 
+ * @returns 
+ */
 function filtrerBlocsBrises(listeBlocs){
   let blocsResultat = [];
   listeBlocs.forEach(unBloc => {
@@ -531,7 +549,7 @@ function genererBloc(binaire) {
 
 let nombreCarresBlancs = 5;
 // Appel de la fonction avec n=9 (nombre de chiffres) et k=5 (nombre de "1")
-tousLesBlocs = genererTousLesBlocs(tousLesBinaires);
+tousLesBlocs = genererLesBlocs(tousLesBinaires);
 let blocsContinus = filtrerBlocsContinus(tousLesBlocs);
 let blocsBrises = filtrerBlocsBrises(tousLesBlocs);
 // Pour des raisons d'affichage, je reverse les listes :
@@ -653,7 +671,6 @@ function preload() {
   exemplePattern3 = loadImage("blocs-2_05.png");
   exemplePattern4 = loadImage("blocs-2_08.png");
   exemplePatternm11 = loadImage("bloc-0.png");
-  exemplePatternm12 = loadImage("bloc-1-4.png");
 }
 
 function setup() {
@@ -695,11 +712,11 @@ function draw() {
   
       // Génération des nouveaux blocs
       if (checkboxAfficherTout.checked()) {
-        tousLesBlocs = genererTousLesBlocs(tousLesBinaires);
+        tousLesBlocs = genererLesBlocs(tousLesBinaires);
         sliderNombreCarres.elt.disabled = true;
         sliderNombreCarresLegende.html(`Carrés blancs par bloc : tous`);
       } else {
-        tousLesBlocs = genererTousLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
+        tousLesBlocs = genererLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
         sliderNombreCarres.elt.disabled = false;
       }
 
@@ -779,7 +796,6 @@ function draw() {
       image(exemplePattern3, 383,  positionIHMy + 175 +72);
       image(exemplePattern4, 383,  positionIHMy + 175 +92);
       image(exemplePatternm11, 383,  positionIHMy + 175 +112);
-      image(exemplePatternm12, 403,  positionIHMy + 175 +112);
   
       for (let l = 0; l < rownumber; l++) {
         for (let k = 0; k < elementsPerRow; k++) {
