@@ -451,6 +451,18 @@ function genererBinaires9Chiffres() {
 tousLesBinaires = genererBinaires9Chiffres();
 
 /**
+ * Sert à compter le nombre de "1" dans un binaire.
+ * @param {*} binaire 
+ * @returns 
+ */
+function compterUns(binaire) {
+  return binaire.split('').filter(caractere => caractere === '1').length;
+}
+
+// Tri de la liste selon le nombre de "1"
+tousLesBinaires.sort((a, b) => compterUns(a) - compterUns(b));
+
+/**
  * Fonction qui renvoie une sous-liste de binaires à partir de listeBinaires
  * qui ont une quantité nombreUns de "1" dans leurs chaînes de caractère
  * @param {*} listeBinaires 
@@ -691,7 +703,6 @@ function draw() {
         sliderNombreCarres.elt.disabled = false;
       }
 
-
       blocsContinus = filtrerBlocsContinus(tousLesBlocs);
       blocsBrises = filtrerBlocsBrises(tousLesBlocs);
   
@@ -726,7 +737,6 @@ function draw() {
         default:
           break;
       }
-  
   
       // Filtre sur les différents patterns présents dans les blocs
       if (checkboxes[0].checked()) {
