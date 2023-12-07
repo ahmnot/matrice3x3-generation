@@ -584,7 +584,7 @@ let radioTypeBlocs;
 let radioTypeBlocsLegende;
 let legendeFiltres;
 let checkboxes = [];
-let randomiserButton;
+let checkboxRandomiser;
 let stringPatternChecked = "";
 let nombreBlocs;
 let exportButton;
@@ -652,8 +652,8 @@ function initializeMenuBlocs() {
   checkboxes[4].position(positionIHMx + 20, positionIHMy + 175 + 110);
   checkboxes[5].position(positionIHMx + 20, positionIHMy + 175 + 130);
   
-  randomiserButton = createButton("Randomiser ordre des blocs");
-  randomiserButton.position(positionIHMx + 230, positionIHMy + 250);
+  checkboxRandomiser = createCheckbox("Randomiser ordre des blocs", false);
+  checkboxRandomiser.position(positionIHMx + 230, positionIHMy + 250);
 
   nombreBlocs = createP();
   nombreBlocs.position(positionIHMx + 40, positionIHMy + 330);
@@ -723,11 +723,10 @@ function draw() {
         tousLesBlocs = genererLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
         sliderNombreCarres.elt.disabled = false;
       }
-
-      randomiserButton.mousePressed(() => {
+      
+      if (checkboxRandomiser.checked()) {
         shuffleArray(tousLesBlocs);
-        console.log(tousLesBlocs);
-      });
+      }
 
       blocsContinus = filtrerBlocsContinus(tousLesBlocs);
       blocsBrises = filtrerBlocsBrises(tousLesBlocs);
