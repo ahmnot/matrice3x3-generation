@@ -530,7 +530,7 @@ blocsBrises.reverse();
 let blocsAffiches = [];
 
 let scaling = 12;
-let rownumber = 5;
+let rownumber = 9;
 let elementsPerRow = Math.ceil(tousLesBlocs.length / rownumber);
 let squareSize = 3; // Taille du carré (3x3, 4x4, etc.)
 let verticalLineWidth = 1; // Largeur de la ligne verticale
@@ -674,8 +674,8 @@ function draw() {
       showMenuBlocs();
     }
     else if (isMenuBlocsShown) {
-      let val = sliderNombreCarres.value();
-      sliderNombreCarresLegende.html(`Carrés blancs par bloc : ${val}`);
+      nombreCarresBlancs = sliderNombreCarres.value();
+      sliderNombreCarresLegende.html(`Carrés blancs par bloc : ${nombreCarresBlancs}`);
       // Réinitialisation des listes
       tousLesBlocs = [];
       blocsContinus = [];
@@ -687,7 +687,7 @@ function draw() {
         sliderNombreCarres.elt.disabled = true;
         sliderNombreCarresLegende.html(`Carrés blancs par bloc : tous`);
       } else {
-        tousLesBlocs = genererTousLesBlocs(filtrerParNombreDeUns(tousLesBinaires, val));
+        tousLesBlocs = genererTousLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
         sliderNombreCarres.elt.disabled = false;
       }
 
