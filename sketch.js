@@ -200,8 +200,8 @@ function aSymetrieVerticale(matrix) {
 function sontEquivalentParSymetrieRotation(bloc1, bloc2) {
   let rotation = bloc2;
   for (let i = 0; i < 4; i++) {
-    if (areMatricesEqual(bloc1, symetriserHorizontalement(rotation)) || 
-        areMatricesEqual(bloc1, symetriserVerticalement(rotation))) {
+    if (areMatricesEqual(bloc1, symetriserHorizontalement(rotation)) ||
+      areMatricesEqual(bloc1, symetriserVerticalement(rotation))) {
       return true;
     }
     rotation = rotateBlocPlus90(rotation);
@@ -214,7 +214,7 @@ function sontEquivalentParSymetrieRotation(bloc1, bloc2) {
  */
 function filtrerBlocsParClasseDeSymetrieRotation(listeBlocs = []) {
   let listeResultat = [];
-  
+
   listeBlocs.forEach(bloc => {
     let estUnique = true;
     for (let autreBloc of listeResultat) {
@@ -463,8 +463,8 @@ tousLesBinaires.sort((a, b) => compterUns(a) - compterUns(b));
  */
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
 }
 
@@ -476,7 +476,7 @@ function shuffleArray(array) {
  * @returns 
  */
 function filtrerParNombreDeUns(listeBinaires, nombreUns) {
-  return listeBinaires.filter(binaire => 
+  return listeBinaires.filter(binaire =>
     binaire.split('').filter(caractere => caractere === '1').length === nombreUns
   );
 }
@@ -499,7 +499,7 @@ function genererLesBlocs(listeBinaires) {
  * @param {*} listeBlocs 
  * @returns 
  */
-function filtrerBlocsContinus(listeBlocs){
+function filtrerBlocsContinus(listeBlocs) {
   let blocsResultat = [];
   listeBlocs.forEach(unBloc => {
     if (areOnesConnected(unBloc)) {
@@ -514,7 +514,7 @@ function filtrerBlocsContinus(listeBlocs){
  * @param {*} listeBlocs 
  * @returns 
  */
-function filtrerBlocsBrises(listeBlocs){
+function filtrerBlocsBrises(listeBlocs) {
   let blocsResultat = [];
   listeBlocs.forEach(unBloc => {
     if (!areOnesConnected(unBloc)) {
@@ -557,10 +557,10 @@ tousLesBlocs.reverse();
 blocsContinus.reverse();
 blocsBrises.reverse();
 
-let blocsAffiches = [];
+let blocsAffiches = tousLesBlocs;
 
 let scaling = 12;
-let rownumber = 9;
+let rownumber = 12;
 let elementsPerRow = Math.ceil(tousLesBlocs.length / rownumber);
 let squareSize = 3; // Taille du carré (3x3, 4x4, etc.)
 let verticalLineWidth = 1; // Largeur de la ligne verticale
@@ -576,7 +576,6 @@ let tutoTexte;
 let sliderNombreCarres;
 let sliderNombreCarresLegende;
 
-
 let checkboxAfficherTout;
 let checkboxRotations;
 let checkboxSymetries;
@@ -584,13 +583,13 @@ let radioTypeBlocs;
 let radioTypeBlocsLegende;
 let legendeFiltres;
 let checkboxes = [];
-let checkboxRandomiser;
+let randomiserButton;
 let stringPatternChecked = "";
 let nombreBlocs;
 let exportButton;
 
 let positionIHMx = 300;
-let positionIHMy = 500;
+let positionIHMy = 550;
 
 let minWidth = 1000; // Largeur minimale du canvas
 let minHeight = 1500; // Hauteur minimale du canvas
@@ -606,24 +605,32 @@ let isMenuBlocsShown = false;
 
 let couleurBackground = 15;
 
+let regenererBlocs = true;
+
 function initializeMenuBlocs() {
   tutoTexte = createP();
   tutoTexte.position(positionIHMx + 25, positionIHMy - 20);
   tutoTexte.html(`Cliquez sur un bloc pour l'exporter.`);
+
   sliderNombreCarres = createSlider(0, 9, nombreCarresBlancs, 1);
   sliderNombreCarres.position(positionIHMx + 20, positionIHMy + 50);
   sliderNombreCarres.style('width', '200px');
+  sliderNombreCarres.input(onSliderChange);
+
   sliderNombreCarresLegende = createP(`${sliderNombreCarres.value()}`);
   sliderNombreCarresLegende.position(positionIHMx + 50, positionIHMy + 20);
 
   checkboxAfficherTout = createCheckbox('Afficher tous les blocs', false);
   checkboxAfficherTout.position(positionIHMx + 225, positionIHMy + 40);
+  checkboxAfficherTout.changed(onCheckboxChange);
 
   checkboxRotations = createCheckbox('Enlever rotations', false);
   checkboxRotations.position(positionIHMx + 20, positionIHMy + 80);
+  checkboxRotations.changed(onCheckboxChange);
 
   checkboxSymetries = createCheckbox('Enlever symétries (dont symétries-rotations)', false);
   checkboxSymetries.position(positionIHMx + 140, positionIHMy + 80);
+  checkboxSymetries.changed(onCheckboxChange);
 
   radioTypeBlocsLegende = createP();
   radioTypeBlocsLegende.position(positionIHMx + 50, positionIHMy + 70 + 30);
@@ -634,6 +641,7 @@ function initializeMenuBlocs() {
   radioTypeBlocs.option('Brisés');
   radioTypeBlocs.position(positionIHMx + 20, positionIHMy + 100 + 30);
   radioTypeBlocs.selected('Tous');
+  radioTypeBlocs.changed(onRadioChange);
 
   legendeFiltres = createP();
   legendeFiltres.position(positionIHMx + 50, positionIHMy + 175);
@@ -651,9 +659,14 @@ function initializeMenuBlocs() {
   checkboxes[3].position(positionIHMx + 20, positionIHMy + 175 + 90);
   checkboxes[4].position(positionIHMx + 20, positionIHMy + 175 + 110);
   checkboxes[5].position(positionIHMx + 20, positionIHMy + 175 + 130);
-  
-  checkboxRandomiser = createCheckbox("Randomiser ordre des blocs", false);
-  checkboxRandomiser.position(positionIHMx + 230, positionIHMy + 250);
+
+  checkboxes.forEach(uneCheckbox => {
+    uneCheckbox.changed(onCheckboxChange);
+  });
+
+  randomiserButton = createButton("Randomiser ordre des blocs", false);
+  randomiserButton.position(positionIHMx + 230, positionIHMy + 250);
+  randomiserButton.mousePressed(randomiserBlocs);
 
   nombreBlocs = createP();
   nombreBlocs.position(positionIHMx + 40, positionIHMy + 330);
@@ -683,12 +696,12 @@ function setup() {
   choixDuMode.html(`Sélection du mode`);
   radioChoixDuMode = createRadio("ChoixDuMode");
   radioChoixDuMode.option('Génération exhaustive de blocs');
-  radioChoixDuMode.option('Génération de labyrinthes');
+  //radioChoixDuMode.option('Génération de labyrinthes');
   radioChoixDuMode.position(positionIHMx + 20, positionIHMy - 70);
   radioChoixDuMode.selected('Génération exhaustive de blocs');
 
   if (radioChoixDuMode.value() === "Génération exhaustive de blocs") {
-    initializeMenuBlocs();  
+    initializeMenuBlocs();
   }
 
   canvasWidth = elementsPerRow * (squareSize * scaling + verticalLineWidth) - verticalLineWidth;
@@ -707,104 +720,102 @@ function draw() {
       showMenuBlocs();
     }
     else if (isMenuBlocsShown) {
-      nombreCarresBlancs = sliderNombreCarres.value();
-      sliderNombreCarresLegende.html(`Carrés blancs par bloc : ${nombreCarresBlancs}`);
-      // Réinitialisation des listes
-      tousLesBlocs = [];
-      blocsContinus = [];
-      blocsBrises = [];
-  
-      // Génération des nouveaux blocs
-      if (checkboxAfficherTout.checked()) {
-        tousLesBlocs = genererLesBlocs(tousLesBinaires);
-        sliderNombreCarres.elt.disabled = true;
-        sliderNombreCarresLegende.html(`Carrés blancs par bloc : tous`);
-      } else {
-        tousLesBlocs = genererLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
-        sliderNombreCarres.elt.disabled = false;
-      }
+      if (regenererBlocs) {
+        nombreCarresBlancs = sliderNombreCarres.value();
+        sliderNombreCarresLegende.html(`Carrés blancs par bloc : ${nombreCarresBlancs}`);
+        // Réinitialisation des listes
+        tousLesBlocs = [];
+        blocsContinus = [];
+        blocsBrises = [];
 
-      blocsContinus = filtrerBlocsContinus(tousLesBlocs);
-      blocsBrises = filtrerBlocsBrises(tousLesBlocs);
-  
-      tousLesBlocs.reverse();
-      blocsContinus.reverse();
-      blocsBrises.reverse();
-  
-      if (checkboxRotations.checked()) {
-        tousLesBlocs = filtrerBlocsParClasseDeRotation(tousLesBlocs);
-        blocsContinus = filtrerBlocsParClasseDeRotation(blocsContinus);
-        blocsBrises = filtrerBlocsParClasseDeRotation(blocsBrises);
+        // Génération des nouveaux blocs
+        if (checkboxAfficherTout.checked()) {
+          tousLesBlocs = genererLesBlocs(tousLesBinaires);
+          sliderNombreCarres.elt.disabled = true;
+          sliderNombreCarresLegende.html(`Carrés blancs par bloc : tous`);
+        } else {
+          tousLesBlocs = genererLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
+          sliderNombreCarres.elt.disabled = false;
+        }
+
+        blocsContinus = filtrerBlocsContinus(tousLesBlocs);
+        blocsBrises = filtrerBlocsBrises(tousLesBlocs);
+
+        tousLesBlocs.reverse();
+        blocsContinus.reverse();
+        blocsBrises.reverse();
+
+        if (checkboxRotations.checked()) {
+          tousLesBlocs = filtrerBlocsParClasseDeRotation(tousLesBlocs);
+          blocsContinus = filtrerBlocsParClasseDeRotation(blocsContinus);
+          blocsBrises = filtrerBlocsParClasseDeRotation(blocsBrises);
+        }
+
+        if (checkboxSymetries.checked()) {
+          tousLesBlocs = filtrerBlocsParClasseDeSymetrieRotation(tousLesBlocs);
+          blocsContinus = filtrerBlocsParClasseDeSymetrieRotation(blocsContinus);
+          blocsBrises = filtrerBlocsParClasseDeSymetrieRotation(blocsBrises);
+        }
+
+        // Filtre sur le type de blocs affichés
+        switch (radioTypeBlocs.value()) {
+          case 'Tous':
+            blocsAffiches = tousLesBlocs;
+            break;
+          case 'Continus':
+            blocsAffiches = blocsContinus;
+            break;
+          case 'Brisés':
+            blocsAffiches = blocsBrises;
+            break;
+
+          default:
+            break;
+        }
+
+        // Filtre sur les différents patterns présents dans les blocs
+        if (checkboxes[0].checked()) {
+          blocsAffiches = blocsAffiches.filter(verifierPattern0);
+        }
+        if (checkboxes[1].checked()) {
+          blocsAffiches = blocsAffiches.filter(verifierPattern1);
+        }
+        if (checkboxes[2].checked()) {
+          blocsAffiches = blocsAffiches.filter(verifierPattern2);
+        }
+        if (checkboxes[3].checked()) {
+          blocsAffiches = blocsAffiches.filter(verifierPattern3);
+        }
+        if (checkboxes[4].checked()) {
+          blocsAffiches = blocsAffiches.filter(verifierPattern4);
+        }
+        if (checkboxes[5].checked()) {
+          blocsAffiches = blocsAffiches.filter(verifierPatternm1);
+        }
+
+        nombreBlocs.html(`Nombre de blocs affichés : ${blocsAffiches.length}`);
+        regenererBlocs = false; // Réinitialiser la variable après la régénération
       }
-  
-      if (checkboxSymetries.checked()) {
-        tousLesBlocs = filtrerBlocsParClasseDeSymetrieRotation(tousLesBlocs);
-        blocsContinus = filtrerBlocsParClasseDeSymetrieRotation(blocsContinus);
-        blocsBrises = filtrerBlocsParClasseDeSymetrieRotation(blocsBrises);
-      }
-  
-      // Filtre sur le type de blocs affichés
-      switch (radioTypeBlocs.value()) {
-        case 'Tous':
-          blocsAffiches = tousLesBlocs;
-          break;
-        case 'Continus':
-          blocsAffiches = blocsContinus;
-          break;
-        case 'Brisés':
-          blocsAffiches = blocsBrises;
-          break;
-  
-        default:
-          break;
-      }
-  
-      // Filtre sur les différents patterns présents dans les blocs
-      if (checkboxes[0].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierPattern0);
-      }
-      if (checkboxes[1].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierPattern1);
-      }
-      if (checkboxes[2].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierPattern2);
-      }
-      if (checkboxes[3].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierPattern3);
-      }
-      if (checkboxes[4].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierPattern4);
-      }
-      if (checkboxes[5].checked()) {
-        blocsAffiches = blocsAffiches.filter(verifierPatternm1);
-      }
-      
-      if (checkboxRandomiser.checked()) {
-        shuffleArray(blocsAffiches);
-      }
-  
-      nombreBlocs.html(`Nombre de blocs affichés : ${blocsAffiches.length}`);
-  
       elementsPerRow = Math.ceil(blocsAffiches.length / rownumber);
       canvasWidth = elementsPerRow * (squareSize * scaling + verticalLineWidth) - verticalLineWidth;
       canvasHeight = rownumber * squareSize * scaling;
       canvasWidth = max(canvasWidth, minWidth);
       canvasHeight = max(canvasHeight, minHeight);
-  
+
       resizeCanvas(canvasWidth, canvasHeight);
-  
+
       // Mise à jour de l'affichage
       background(couleurBackground); // Nettoie le canvas avant de redessiner
       image(exempleBlocContinu, 383, positionIHMy + 130);
       image(exempleBlocBrise, 447, positionIHMy + 130);
-      image(exemplePattern01, 383,  positionIHMy + 175 + 12);
-      image(exemplePattern02, 403,  positionIHMy + 175 +12);
-      image(exemplePattern1, 383,  positionIHMy + 175 +32);
-      image(exemplePattern2, 383,  positionIHMy + 175 +52);
-      image(exemplePattern3, 383,  positionIHMy + 175 +72);
-      image(exemplePattern4, 383,  positionIHMy + 175 +92);
-      image(exemplePatternm11, 383,  positionIHMy + 175 +112);
-  
+      image(exemplePattern01, 383, positionIHMy + 175 + 12);
+      image(exemplePattern02, 403, positionIHMy + 175 + 12);
+      image(exemplePattern1, 383, positionIHMy + 175 + 32);
+      image(exemplePattern2, 383, positionIHMy + 175 + 52);
+      image(exemplePattern3, 383, positionIHMy + 175 + 72);
+      image(exemplePattern4, 383, positionIHMy + 175 + 92);
+      image(exemplePatternm11, 383, positionIHMy + 175 + 112);
+
       for (let l = 0; l < rownumber; l++) {
         for (let k = 0; k < elementsPerRow; k++) {
           let index = l * elementsPerRow + k;
@@ -834,12 +845,12 @@ function draw() {
           line(0, (l + 1) * squareSize * scaling, canvasWidth, (l + 1) * squareSize * scaling);
         }
       }
-  
+
       drawHoverSquare();
     }
   } else {
-      background(couleurBackground);
-      hideMenuBlocs();  
+    background(couleurBackground);
+    hideMenuBlocs();
   }
 }
 
@@ -851,7 +862,7 @@ function showMenuBlocs() {
   checkboxAfficherTout.show();
   checkboxRotations.show();
   checkboxSymetries.show();
-  
+
   radioTypeBlocs.show();
   radioTypeBlocsLegende.show();
   legendeFiltres.show();
@@ -876,7 +887,7 @@ function hideMenuBlocs() {
   checkboxAfficherTout.hide();
   checkboxRotations.hide();
   checkboxSymetries.hide();
-  
+
   radioTypeBlocs.hide();
   radioTypeBlocsLegende.hide();
   legendeFiltres.hide();
@@ -891,6 +902,20 @@ function hideMenuBlocs() {
 
   exportButton.hide();
   isMenuBlocsShown = false;
+}
+
+function onSliderChange() {
+  nombreCarresBlancs = sliderNombreCarres.value();
+  sliderNombreCarresLegende.html(`Carrés blancs par bloc : ${nombreCarresBlancs}`);
+  regenererBlocs = true;
+}
+
+function onCheckboxChange() {
+  regenererBlocs = true;
+}
+
+function onRadioChange() {
+  regenererBlocs = true;
 }
 
 /**
@@ -941,6 +966,10 @@ function mouseClicked() {
       save(pg, `bloc-${sliderNombreCarres.value()}-${index}.png`);
     }
   }
+}
+
+function randomiserBlocs() {
+  shuffleArray(blocsAffiches);
 }
 
 function exportAllBlocks() {
