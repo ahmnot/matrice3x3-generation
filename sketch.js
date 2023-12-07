@@ -607,6 +607,7 @@ let couleurBackground = 15;
 
 let regenererBlocs = true;
 
+
 function initializeMenuBlocs() {
   tutoTexte = createP();
   tutoTexte.position(positionIHMx + 25, positionIHMy - 20);
@@ -936,37 +937,37 @@ function drawHoverSquare() {
 /**
  * Gère l'export d'un bloc au clic.
  */
-function mouseClicked() {
-  let gridX = Math.floor(mouseX / totalWidth);
-  let gridY = Math.floor(mouseY / (squareSize * scaling));
-  // Vérifie si le clic est à l'intérieur de la grille
-  if (mouseX >= gridStartX && mouseX < gridEndX && mouseY >= gridStartY && mouseY < gridEndY) {
-    // Obtient l'index du bloc sur lequel l'utilisateur a cliqué
-    let index = gridY * elementsPerRow + gridX;
-    if (index < blocsAffiches.length) {
-      let bloc = blocsAffiches[index];
+ function mouseClicked() {
+   let gridX = Math.floor(mouseX / totalWidth);
+   let gridY = Math.floor(mouseY / (squareSize * scaling));
+   // Vérifie si le clic est à l'intérieur de la grille
+   if (mouseX >= gridStartX && mouseX < gridEndX && mouseY >= gridStartY && mouseY < gridEndY) {
+     // Obtient l'index du bloc sur lequel l'utilisateur a cliqué
+     let index = gridY * elementsPerRow + gridX;
+     if (index < blocsAffiches.length) {
+       let bloc = blocsAffiches[index];
 
       // Crée un graphique pour dessiner le bloc
       let pg = createGraphics(squareSize * scaling, squareSize * scaling);
       pg.background(0);
       pg.noFill();
 
-      // Dessine le bloc sur le graphique
-      for (let i = 0; i < squareSize; i++) {
-        for (let j = 0; j < squareSize; j++) {
-          if (bloc[i][j] === 1) {
-            pg.fill(255);
-            pg.noStroke();
-            pg.square(j * scaling, i * scaling, scaling);
-          }
-        }
-      }
+       // Dessine le bloc sur le graphique
+       for (let i = 0; i < squareSize; i++) {
+         for (let j = 0; j < squareSize; j++) {
+           if (bloc[i][j] === 1) {
+             pg.fill(255);
+             pg.noStroke();
+             pg.square(j * scaling, i * scaling, scaling);
+           }
+         }
+       }
 
-      // Enregistre le graphique en tant que fichier PNG
-      save(pg, `bloc-${sliderNombreCarres.value()}-${index}.png`);
-    }
-  }
-}
+       // Enregistre le graphique en tant que fichier PNG
+       save(pg, `bloc-${sliderNombreCarres.value()}-${index}.png`);
+     }
+   }
+ }
 
 function randomiserBlocs() {
   shuffleArray(blocsAffiches);
@@ -1001,15 +1002,23 @@ function exportAllBlocks() {
         }
       }
     }
-    // Ajoutez le PNG au ZIP
+    // Ajout du PNG au ZIP
     pg.canvas.toBlob(function (blob) {
-      zip.file(`bloc-${sliderNombreCarres.value()}-${index}.png`, blob);
+      if (checkboxAfficherTout.checked()) {
+        zip.file(`bloc-${index}.png`, blob);
+      } else {
+        zip.file(`bloc-${sliderNombreCarres.value()}-${index}.png`, blob);
+      }
 
-      // Vérifiez si c'est le dernier bloc à ajouter
+      // Vérifier si c'est le dernier bloc à ajouter
       if (index === blocsAffiches.length - 1) {
         zip.generateAsync({ type: "blob" }).then(function (content) {
-          //saveAs vient de FileSaver.js
-          saveAs(content, `blocs-${sliderNombreCarres.value()}${stringPatternChecked}.zip`);
+          // saveAs vient de FileSaver.js
+          if (checkboxAfficherTout.checked()) {
+            saveAs(content, `${blocsAffiches.length}-blocs${stringPatternChecked}.zip`);
+          } else {
+            saveAs(content, `${blocsAffiches.length}-blocs-${sliderNombreCarres.value()}${stringPatternChecked}.zip`);
+          }
         });
       }
     });
