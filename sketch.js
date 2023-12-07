@@ -529,7 +529,7 @@ blocsBrises.reverse();
 
 let blocsAffiches = [];
 
-let scaling = 24;
+let scaling = 12;
 let rownumber = 5;
 let elementsPerRow = Math.ceil(tousLesBlocs.length / rownumber);
 let squareSize = 3; // Taille du carré (3x3, 4x4, etc.)
@@ -574,6 +574,62 @@ let gridEndY = gridStartY + rownumber * (squareSize * scaling);
 let isMenuBlocsShown = false;
 
 let couleurBackground = 15;
+
+function initializeMenuBlocs() {
+  tutoTexte = createP();
+  tutoTexte.position(positionIHMx + 25, positionIHMy - 20);
+  tutoTexte.html(`Cliquez sur un bloc pour l'exporter.`);
+  sliderNombreCarres = createSlider(0, 9, nombreCarresBlancs, 1);
+  sliderNombreCarres.position(positionIHMx + 20, positionIHMy + 50);
+  sliderNombreCarres.style('width', '200px');
+  sliderNombreCarresLegende = createP(`${sliderNombreCarres.value()}`);
+  sliderNombreCarresLegende.position(positionIHMx + 50, positionIHMy + 20);
+
+  checkboxAfficherTout = createCheckbox('Afficher tous les blocs', false);
+  checkboxAfficherTout.position(positionIHMx + 225, positionIHMy + 40);
+
+  checkboxRotations = createCheckbox('Enlever rotations', false);
+  checkboxRotations.position(positionIHMx + 20, positionIHMy + 80);
+
+  checkboxSymetries = createCheckbox('Enlever symétries (dont symétries-rotations)', false);
+  checkboxSymetries.position(positionIHMx + 140, positionIHMy + 80);
+
+  radioTypeBlocsLegende = createP();
+  radioTypeBlocsLegende.position(positionIHMx + 50, positionIHMy + 70 + 30);
+  radioTypeBlocsLegende.html(`Type de blocs affichés`);
+  radioTypeBlocs = createRadio("TypeBlocs");
+  radioTypeBlocs.option('Tous');
+  radioTypeBlocs.option('Continus');
+  radioTypeBlocs.option('Brisés');
+  radioTypeBlocs.position(positionIHMx + 20, positionIHMy + 100 + 30);
+  radioTypeBlocs.selected('Tous');
+
+  legendeFiltres = createP();
+  legendeFiltres.position(positionIHMx + 50, positionIHMy + 175);
+  legendeFiltres.html(`Application de filtres`);
+
+  checkboxes[0] = createCheckbox('Pattern 0', false);
+  checkboxes[1] = createCheckbox('Pattern 1', false);
+  checkboxes[2] = createCheckbox('Pattern 2', false);
+  checkboxes[3] = createCheckbox('Pattern 3', false);
+  checkboxes[4] = createCheckbox('Pattern 4', false);
+  checkboxes[5] = createCheckbox('Pattern -1', false);
+  checkboxes[0].position(positionIHMx + 20, positionIHMy + 175 + 30);
+  checkboxes[1].position(positionIHMx + 20, positionIHMy + 175 + 50);
+  checkboxes[2].position(positionIHMx + 20, positionIHMy + 175 + 70);
+  checkboxes[3].position(positionIHMx + 20, positionIHMy + 175 + 90);
+  checkboxes[4].position(positionIHMx + 20, positionIHMy + 175 + 110);
+  checkboxes[5].position(positionIHMx + 20, positionIHMy + 175 + 130);
+
+  nombreBlocs = createP();
+  nombreBlocs.position(positionIHMx + 40, positionIHMy + 330);
+  nombreBlocs.html(`Nombre de blocs affichés : `);
+
+  exportButton = createButton('Exporter tous les blocs affichés');
+  exportButton.position(positionIHMx + 30, positionIHMy + 365);
+  exportButton.mousePressed(exportAllBlocks);
+  isMenuBlocsShown = true;
+}
 
 function preload() {
   exempleBlocContinu = loadImage("blocs-6_19.png");
@@ -626,7 +682,16 @@ function draw() {
       blocsBrises = [];
   
       // Génération des nouveaux blocs
-      tousLesBlocs = genererTousLesBlocs(filtrerParNombreDeUns(tousLesBinaires, val));
+      if (checkboxAfficherTout.checked()) {
+        tousLesBlocs = genererTousLesBlocs(tousLesBinaires);
+        sliderNombreCarres.elt.disabled = true;
+        sliderNombreCarresLegende.html(`Carrés blancs par bloc : tous`);
+      } else {
+        tousLesBlocs = genererTousLesBlocs(filtrerParNombreDeUns(tousLesBinaires, val));
+        sliderNombreCarres.elt.disabled = false;
+      }
+
+
       blocsContinus = filtrerBlocsContinus(tousLesBlocs);
       blocsBrises = filtrerBlocsBrises(tousLesBlocs);
   
@@ -744,64 +809,12 @@ function draw() {
   }
 }
 
-function initializeMenuBlocs() {
-  tutoTexte = createP();
-  tutoTexte.position(positionIHMx + 25, positionIHMy - 20);
-  tutoTexte.html(`Cliquez sur un bloc pour l'exporter.`);
-  sliderNombreCarres = createSlider(0, 9, nombreCarresBlancs, 1);
-  sliderNombreCarres.position(positionIHMx + 20, positionIHMy + 50);
-  sliderNombreCarres.style('width', '200px');
-  sliderNombreCarresLegende = createP(`${sliderNombreCarres.value()}`);
-  sliderNombreCarresLegende.position(positionIHMx + 50, positionIHMy + 20);
-
-  checkboxRotations = createCheckbox('Enlever rotations', false);
-  checkboxRotations.position(positionIHMx + 20, positionIHMy + 80);
-
-  checkboxSymetries = createCheckbox('Enlever symétries (dont symétries-rotations)', false);
-  checkboxSymetries.position(positionIHMx + 140, positionIHMy + 80);
-
-  radioTypeBlocsLegende = createP();
-  radioTypeBlocsLegende.position(positionIHMx + 50, positionIHMy + 70 + 30);
-  radioTypeBlocsLegende.html(`Type de blocs affichés`);
-  radioTypeBlocs = createRadio("TypeBlocs");
-  radioTypeBlocs.option('Tous');
-  radioTypeBlocs.option('Continus');
-  radioTypeBlocs.option('Brisés');
-  radioTypeBlocs.position(positionIHMx + 20, positionIHMy + 100 + 30);
-  radioTypeBlocs.selected('Tous');
-
-  legendeFiltres = createP();
-  legendeFiltres.position(positionIHMx + 50, positionIHMy + 175);
-  legendeFiltres.html(`Application de filtres`);
-
-  checkboxes[0] = createCheckbox('Pattern 0', false);
-  checkboxes[1] = createCheckbox('Pattern 1', false);
-  checkboxes[2] = createCheckbox('Pattern 2', false);
-  checkboxes[3] = createCheckbox('Pattern 3', false);
-  checkboxes[4] = createCheckbox('Pattern 4', false);
-  checkboxes[5] = createCheckbox('Pattern -1', false);
-  checkboxes[0].position(positionIHMx + 20, positionIHMy + 175 + 30);
-  checkboxes[1].position(positionIHMx + 20, positionIHMy + 175 + 50);
-  checkboxes[2].position(positionIHMx + 20, positionIHMy + 175 + 70);
-  checkboxes[3].position(positionIHMx + 20, positionIHMy + 175 + 90);
-  checkboxes[4].position(positionIHMx + 20, positionIHMy + 175 + 110);
-  checkboxes[5].position(positionIHMx + 20, positionIHMy + 175 + 130);
-
-  nombreBlocs = createP();
-  nombreBlocs.position(positionIHMx + 40, positionIHMy + 330);
-  nombreBlocs.html(`Nombre de blocs affichés : `);
-
-  exportButton = createButton('Exporter tous les blocs affichés');
-  exportButton.position(positionIHMx + 30, positionIHMy + 365);
-  exportButton.mousePressed(exportAllBlocks);
-  isMenuBlocsShown = true;
-}
-
 function showMenuBlocs() {
   tutoTexte.show();
   sliderNombreCarres.show();
   sliderNombreCarresLegende.show();
 
+  checkboxAfficherTout.show();
   checkboxRotations.show();
   checkboxSymetries.show();
   
@@ -826,6 +839,7 @@ function hideMenuBlocs() {
   sliderNombreCarres.hide();
   sliderNombreCarresLegende.hide();
 
+  checkboxAfficherTout.hide();
   checkboxRotations.hide();
   checkboxSymetries.hide();
   
