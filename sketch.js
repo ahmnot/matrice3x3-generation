@@ -723,10 +723,6 @@ function draw() {
         tousLesBlocs = genererLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
         sliderNombreCarres.elt.disabled = false;
       }
-      
-      if (checkboxRandomiser.checked()) {
-        shuffleArray(tousLesBlocs);
-      }
 
       blocsContinus = filtrerBlocsContinus(tousLesBlocs);
       blocsBrises = filtrerBlocsBrises(tousLesBlocs);
@@ -781,6 +777,10 @@ function draw() {
       }
       if (checkboxes[5].checked()) {
         blocsAffiches = blocsAffiches.filter(verifierPatternm1);
+      }
+      
+      if (checkboxRandomiser.checked()) {
+        shuffleArray(blocsAffiches);
       }
   
       nombreBlocs.html(`Nombre de blocs affichés : ${blocsAffiches.length}`);
