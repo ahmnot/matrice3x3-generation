@@ -13,4 +13,4 @@ A "broken" block is a block which is not continuous.
 Then there is the pattern filters. You can try to check the pattern filters and guess for yourself what the patterns are.
 
 [![Demo matrice3x3-generation-p5](https://github.com/ahmnot/matrice3x3-generation/blob/main/example%20video.gif)
-)](https://www.youtube.com/watch?v=Y9bNTE-mXM0)
+](https://www.youtube.com/watch?v=Y9bNTE-mXM0)
