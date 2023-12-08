@@ -560,7 +560,7 @@ blocsBrises.reverse();
 let blocsAffiches = tousLesBlocs;
 
 let scaling = 12;
-let rownumber = 12;
+let rownumber = 11;
 let elementsPerRow = Math.ceil(tousLesBlocs.length / rownumber);
 let squareSize = 3; // Taille du carré (3x3, 4x4, etc.)
 let verticalLineWidth = 1; // Largeur de la ligne verticale
@@ -613,6 +613,18 @@ function initializeMenuBlocs() {
   tutoTexte.position(positionIHMx + 25, positionIHMy - 20);
   tutoTexte.html(`Cliquez sur un bloc pour l'exporter.`);
 
+  presentationTexte = createDiv().size(200,50);
+  presentationTexte.position(positionIHMx + 500, positionIHMy);
+  presentationTexte.html(`INTRODUCTION : 
+  Le programme que vous venez d'ouvrir est un programme de génération de blocs.
+  Définitions : 
+  - un "bloc" est la représentation graphique d'une matrice 3x3 constituée de 0 ou de 1.
+  - Un "carré" est la représentation graphique d'un 0 ou d'un 1.
+  Un bloc est donc constitué de 9 carrés.
+  Les blocs affichés, en haut à gauche, sont contrôlés par les différents filtres et boutons, à gauche.
+  Vous pouvez cliquer sur un bloc pour l'exporter, ou exporter tous les blocs affichés d'un coup.
+  Auteur : ahmnot ;)`);
+
   sliderNombreCarres = createSlider(0, 9, nombreCarresBlancs, 1);
   sliderNombreCarres.position(positionIHMx + 20, positionIHMy + 50);
   sliderNombreCarres.style('width', '200px');
@@ -629,7 +641,7 @@ function initializeMenuBlocs() {
   checkboxRotations.position(positionIHMx + 20, positionIHMy + 80);
   checkboxRotations.changed(onCheckboxChange);
 
-  checkboxSymetries = createCheckbox('Enlever symétries (dont symétries-rotations)', false);
+  checkboxSymetries = createCheckbox('Enlever symétries', false);
   checkboxSymetries.position(positionIHMx + 140, positionIHMy + 80);
   checkboxSymetries.changed(onCheckboxChange);
 
@@ -692,18 +704,18 @@ function preload() {
 }
 
 function setup() {
-  let choixDuMode = createP();
-  choixDuMode.position(positionIHMx + 25, positionIHMy - 100);
-  choixDuMode.html(`Sélection du mode`);
-  radioChoixDuMode = createRadio("ChoixDuMode");
-  radioChoixDuMode.option('Génération exhaustive de blocs');
+  // let choixDuMode = createP();
+  // choixDuMode.position(positionIHMx + 25, positionIHMy - 100);
+  // choixDuMode.html(`Sélection du mode`);
+  // radioChoixDuMode = createRadio("ChoixDuMode");
+  // radioChoixDuMode.option('Génération exhaustive de blocs');
   //radioChoixDuMode.option('Génération de labyrinthes');
-  radioChoixDuMode.position(positionIHMx + 20, positionIHMy - 70);
-  radioChoixDuMode.selected('Génération exhaustive de blocs');
+  // radioChoixDuMode.position(positionIHMx + 20, positionIHMy - 70);
+  // radioChoixDuMode.selected('Génération exhaustive de blocs');
 
-  if (radioChoixDuMode.value() === "Génération exhaustive de blocs") {
-    initializeMenuBlocs();
-  }
+  // if (radioChoixDuMode.value() === "Génération exhaustive de blocs") {
+  initializeMenuBlocs();
+  // }
 
   canvasWidth = elementsPerRow * (squareSize * scaling + verticalLineWidth) - verticalLineWidth;
   canvasHeight = rownumber * squareSize * scaling;
@@ -716,144 +728,146 @@ function setup() {
 }
 
 function draw() {
-  if (radioChoixDuMode.value() === "Génération exhaustive de blocs") {
-    if (!isMenuBlocsShown) {
-      showMenuBlocs();
+  // if (radioChoixDuMode.value() === "Génération exhaustive de blocs") {
+    // if (!isMenuBlocsShown) {
+    //   showMenuBlocs();
+    // }
+    // else if (isMenuBlocsShown) {
+  if (regenererBlocs) {
+    nombreCarresBlancs = sliderNombreCarres.value();
+    sliderNombreCarresLegende.html(`Carrés blancs par bloc : ${nombreCarresBlancs}`);
+    // Réinitialisation des listes
+    tousLesBlocs = [];
+    blocsContinus = [];
+    blocsBrises = [];
+
+    // Génération des nouveaux blocs
+    if (checkboxAfficherTout.checked()) {
+      tousLesBlocs = genererLesBlocs(tousLesBinaires);
+      sliderNombreCarres.elt.disabled = true;
+      sliderNombreCarresLegende.html(`Carrés blancs par bloc : tous`);
+    } else {
+      tousLesBlocs = genererLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
+      sliderNombreCarres.elt.disabled = false;
     }
-    else if (isMenuBlocsShown) {
-      if (regenererBlocs) {
-        nombreCarresBlancs = sliderNombreCarres.value();
-        sliderNombreCarresLegende.html(`Carrés blancs par bloc : ${nombreCarresBlancs}`);
-        // Réinitialisation des listes
-        tousLesBlocs = [];
-        blocsContinus = [];
-        blocsBrises = [];
 
-        // Génération des nouveaux blocs
-        if (checkboxAfficherTout.checked()) {
-          tousLesBlocs = genererLesBlocs(tousLesBinaires);
-          sliderNombreCarres.elt.disabled = true;
-          sliderNombreCarresLegende.html(`Carrés blancs par bloc : tous`);
-        } else {
-          tousLesBlocs = genererLesBlocs(filtrerParNombreDeUns(tousLesBinaires, nombreCarresBlancs));
-          sliderNombreCarres.elt.disabled = false;
-        }
+    blocsContinus = filtrerBlocsContinus(tousLesBlocs);
+    blocsBrises = filtrerBlocsBrises(tousLesBlocs);
 
-        blocsContinus = filtrerBlocsContinus(tousLesBlocs);
-        blocsBrises = filtrerBlocsBrises(tousLesBlocs);
+    tousLesBlocs.reverse();
+    blocsContinus.reverse();
+    blocsBrises.reverse();
 
-        tousLesBlocs.reverse();
-        blocsContinus.reverse();
-        blocsBrises.reverse();
+    if (checkboxRotations.checked()) {
+      tousLesBlocs = filtrerBlocsParClasseDeRotation(tousLesBlocs);
+      blocsContinus = filtrerBlocsParClasseDeRotation(blocsContinus);
+      blocsBrises = filtrerBlocsParClasseDeRotation(blocsBrises);
+    }
 
-        if (checkboxRotations.checked()) {
-          tousLesBlocs = filtrerBlocsParClasseDeRotation(tousLesBlocs);
-          blocsContinus = filtrerBlocsParClasseDeRotation(blocsContinus);
-          blocsBrises = filtrerBlocsParClasseDeRotation(blocsBrises);
-        }
+    if (checkboxSymetries.checked()) {
+      tousLesBlocs = filtrerBlocsParClasseDeSymetrieRotation(tousLesBlocs);
+      blocsContinus = filtrerBlocsParClasseDeSymetrieRotation(blocsContinus);
+      blocsBrises = filtrerBlocsParClasseDeSymetrieRotation(blocsBrises);
+    }
 
-        if (checkboxSymetries.checked()) {
-          tousLesBlocs = filtrerBlocsParClasseDeSymetrieRotation(tousLesBlocs);
-          blocsContinus = filtrerBlocsParClasseDeSymetrieRotation(blocsContinus);
-          blocsBrises = filtrerBlocsParClasseDeSymetrieRotation(blocsBrises);
-        }
+    // Filtre sur le type de blocs affichés
+    switch (radioTypeBlocs.value()) {
+      case 'Tous':
+        blocsAffiches = tousLesBlocs;
+        break;
+      case 'Continus':
+        blocsAffiches = blocsContinus;
+        break;
+      case 'Brisés':
+        blocsAffiches = blocsBrises;
+        break;
 
-        // Filtre sur le type de blocs affichés
-        switch (radioTypeBlocs.value()) {
-          case 'Tous':
-            blocsAffiches = tousLesBlocs;
-            break;
-          case 'Continus':
-            blocsAffiches = blocsContinus;
-            break;
-          case 'Brisés':
-            blocsAffiches = blocsBrises;
-            break;
+      default:
+        break;
+    }
 
-          default:
-            break;
-        }
+    // Filtre sur les différents patterns présents dans les blocs
+    if (checkboxes[0].checked()) {
+      blocsAffiches = blocsAffiches.filter(verifierPattern0);
+    }
+    if (checkboxes[1].checked()) {
+      blocsAffiches = blocsAffiches.filter(verifierPattern1);
+    }
+    if (checkboxes[2].checked()) {
+      blocsAffiches = blocsAffiches.filter(verifierPattern2);
+    }
+    if (checkboxes[3].checked()) {
+      blocsAffiches = blocsAffiches.filter(verifierPattern3);
+    }
+    if (checkboxes[4].checked()) {
+      blocsAffiches = blocsAffiches.filter(verifierPattern4);
+    }
+    if (checkboxes[5].checked()) {
+      blocsAffiches = blocsAffiches.filter(verifierPatternm1);
+    }
 
-        // Filtre sur les différents patterns présents dans les blocs
-        if (checkboxes[0].checked()) {
-          blocsAffiches = blocsAffiches.filter(verifierPattern0);
-        }
-        if (checkboxes[1].checked()) {
-          blocsAffiches = blocsAffiches.filter(verifierPattern1);
-        }
-        if (checkboxes[2].checked()) {
-          blocsAffiches = blocsAffiches.filter(verifierPattern2);
-        }
-        if (checkboxes[3].checked()) {
-          blocsAffiches = blocsAffiches.filter(verifierPattern3);
-        }
-        if (checkboxes[4].checked()) {
-          blocsAffiches = blocsAffiches.filter(verifierPattern4);
-        }
-        if (checkboxes[5].checked()) {
-          blocsAffiches = blocsAffiches.filter(verifierPatternm1);
-        }
+    nombreBlocs.html(`Nombre de blocs affichés : ${blocsAffiches.length}`);
+  
+    elementsPerRow = Math.ceil(blocsAffiches.length / rownumber);
+    canvasWidth = elementsPerRow * (squareSize * scaling + verticalLineWidth) - verticalLineWidth;
+    canvasHeight = rownumber * squareSize * scaling;
+    canvasWidth = max(canvasWidth, minWidth);
+    canvasHeight = max(canvasHeight, minHeight);
+  
+    resizeCanvas(canvasWidth, canvasHeight);
+    
+    regenererBlocs = false; // Réinitialiser la variable après la régénération
+  }
 
-        nombreBlocs.html(`Nombre de blocs affichés : ${blocsAffiches.length}`);
-        regenererBlocs = false; // Réinitialiser la variable après la régénération
-      }
-      elementsPerRow = Math.ceil(blocsAffiches.length / rownumber);
-      canvasWidth = elementsPerRow * (squareSize * scaling + verticalLineWidth) - verticalLineWidth;
-      canvasHeight = rownumber * squareSize * scaling;
-      canvasWidth = max(canvasWidth, minWidth);
-      canvasHeight = max(canvasHeight, minHeight);
+  background(couleurBackground); // Nettoie le canvas avant de redessiner
+  // Mise à jour de l'affichage
+  image(exempleBlocContinu, 383, positionIHMy + 130);
+  image(exempleBlocBrise, 447, positionIHMy + 130);
+  image(exemplePattern01, 383, positionIHMy + 175 + 12);
+  image(exemplePattern02, 403, positionIHMy + 175 + 12);
+  image(exemplePattern1, 383, positionIHMy + 175 + 32);
+  image(exemplePattern2, 383, positionIHMy + 175 + 52);
+  image(exemplePattern3, 383, positionIHMy + 175 + 72);
+  image(exemplePattern4, 383, positionIHMy + 175 + 92);
+  image(exemplePatternm11, 383, positionIHMy + 175 + 112);
 
-      resizeCanvas(canvasWidth, canvasHeight);
-
-      // Mise à jour de l'affichage
-      background(couleurBackground); // Nettoie le canvas avant de redessiner
-      image(exempleBlocContinu, 383, positionIHMy + 130);
-      image(exempleBlocBrise, 447, positionIHMy + 130);
-      image(exemplePattern01, 383, positionIHMy + 175 + 12);
-      image(exemplePattern02, 403, positionIHMy + 175 + 12);
-      image(exemplePattern1, 383, positionIHMy + 175 + 32);
-      image(exemplePattern2, 383, positionIHMy + 175 + 52);
-      image(exemplePattern3, 383, positionIHMy + 175 + 72);
-      image(exemplePattern4, 383, positionIHMy + 175 + 92);
-      image(exemplePatternm11, 383, positionIHMy + 175 + 112);
-
-      for (let l = 0; l < rownumber; l++) {
-        for (let k = 0; k < elementsPerRow; k++) {
-          let index = l * elementsPerRow + k;
-          if (index < blocsAffiches.length) {
-            let unBloc = blocsAffiches[index];
-            for (let i = 0; i < squareSize; i++) {
-              for (let j = 0; j < squareSize; j++) {
-                if (unBloc[i][j] === 1) {
-                  fill(255); // Couleur du carré
-                  noStroke();
-                  square(
-                    j * scaling + decalageHorizontal,
-                    i * scaling + l * squareSize * scaling,
-                    scaling
-                  );
-                }
-              }
+  for (let l = 0; l < rownumber; l++) {
+    for (let k = 0; k < elementsPerRow; k++) {
+      let index = l * elementsPerRow + k;
+      if (index < blocsAffiches.length) {
+        let unBloc = blocsAffiches[index];
+        for (let i = 0; i < squareSize; i++) {
+          for (let j = 0; j < squareSize; j++) {
+            if (unBloc[i][j] === 1) {
+              fill(255); // Couleur du carré
+              noStroke();
+              square(
+                j * scaling + decalageHorizontal,
+                i * scaling + l * squareSize * scaling,
+                scaling
+              );
             }
-            decalageHorizontal += squareSize * scaling + verticalLineWidth;
           }
         }
-        decalageHorizontal = 0; // Réinitialiser le décalage pour chaque ligne
-        // Dessiner la ligne horizontale après chaque ligne de blocs
-        if (l < rownumber - 1) { // Pas de ligne après la dernière rangée
-          stroke(couleurBackground); // Couleur de la ligne
-          strokeWeight(horizontalLineWidth);
-          line(0, (l + 1) * squareSize * scaling, canvasWidth, (l + 1) * squareSize * scaling);
-        }
+        decalageHorizontal += squareSize * scaling + verticalLineWidth;
       }
-
-      drawHoverSquare();
     }
-  } else {
-    background(couleurBackground);
-    hideMenuBlocs();
+    decalageHorizontal = 0; // Réinitialiser le décalage pour chaque ligne
+    // Dessiner la ligne horizontale après chaque ligne de blocs
+    if (l < rownumber - 1) { // Pas de ligne après la dernière rangée
+      stroke(couleurBackground); // Couleur de la ligne
+      strokeWeight(horizontalLineWidth);
+      line(0, (l + 1) * squareSize * scaling, canvasWidth, (l + 1) * squareSize * scaling);
+    }
   }
+
+  drawHoverSquare();
 }
+  // } else {
+  //   background(couleurBackground);
+  //   hideMenuBlocs();
+  // }
+// }
 
 function showMenuBlocs() {
   tutoTexte.show();
