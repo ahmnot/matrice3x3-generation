@@ -622,7 +622,7 @@ public class BlocGenerator extends PApplet {
   }
 
   public static void main(String[] args) {
-    PApplet.main("MatricesCarreesTrois");
+    PApplet.main("BlocGenerator");
   }
 
   public void settings() {
@@ -641,18 +641,11 @@ public class BlocGenerator extends PApplet {
 
     elementsPerRow = (int) Math.ceil((double) tousLesBlocs.size() / rownumber);
 
-    System.out.print(elementsPerRow);
-    System.out.print("\n");
-
     canvasWidth =
       elementsPerRow *
       (squareSize * scaling + verticalLineWidth) -
       verticalLineWidth;
-    System.out.print(canvasWidth);
-    System.out.print("\n");
     canvasHeight = rownumber * squareSize * scaling;
-    System.out.print(canvasHeight);
-    System.out.print("\n");
 
     canvasWidth = Math.max(canvasWidth, minWidth);
     canvasHeight = Math.max(canvasHeight, minHeight);
