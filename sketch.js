@@ -559,7 +559,7 @@ blocsBrises.reverse();
 
 let blocsAffiches = tousLesBlocs;
 
-let scaling = 12;
+let scaling = 15;
 let rownumber = 11;
 let elementsPerRow = Math.ceil(tousLesBlocs.length / rownumber);
 let squareSize = 3; // Taille du carré (3x3, 4x4, etc.)
@@ -573,6 +573,7 @@ let decalageHorizontal = 0;
 let radioChoixDuMode;
 
 let tutoTexte;
+let presentationTexte;
 let sliderNombreCarres;
 let sliderNombreCarresLegende;
 
