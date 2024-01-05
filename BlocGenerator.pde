@@ -18,10 +18,24 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import processing.core.*;
 
-// Le format des blocs : int[][] testMatrix = { {1, 1, 1}, {1, 1, 0}, {0, 0, 0} };
-
+/**
+ * Ceci est un programme Processing qui génère des blocs et permet de manipuler leur affichage grâce à une IHM, l'IHM dépendant de la librairie controlP5.
+ * Définition : un "bloc" est une matrice 3x3 composée de 0 ou de 1.
+ * Pour visualiser ces blocs, on dit que 0 = petit carré noir et 1 = petit carré blanc.
+ * L'objectif de ce code est de générer l'intégralité de ces blocs, et de les classer.
+ * Pour cela, on a des filtres sur les blocs. Un bloc "continu" est un bloc dans lequel tous les "1" sont connectés, mais pas en diagonale.
+ * Un bloc "brisé" est un bloc qui n'est pas continu.
+ * Il y a ensuite les filtres de motifs.
+ * Le programme permet enfin exporter tous les blocs que vous voyez dans un fichier zip, ou cliquer sur un bloc pour l'exporter.
+ * Il y a aussi la version p5.js
+ */
 public class BlocGenerator extends PApplet {
 
+  // La première partie de ce code concerne un ensemble de fonctions utilitaires.
+
+  /**
+   * Rotationne une matrice à 90°.
+   */
   int[][] rotateBlocPlus90(int[][] matrix) {
     int[][] rotatedMatrix = new int[3][3];
 
@@ -34,6 +48,9 @@ public class BlocGenerator extends PApplet {
     return rotatedMatrix;
   }
 
+  /**
+   * Détermine l'égalité de 2 matrices.
+   */
   boolean areMatricesEqual(int[][] matrix1, int[][] matrix2) {
     if (
       matrix1.length != matrix2.length || matrix1[0].length != matrix2[0].length
@@ -52,6 +69,9 @@ public class BlocGenerator extends PApplet {
     return true;
   }
 
+  /**
+   * Détermine si un bloc (= une matrice) peut être obtenue par la rotation d'une autre.
+   */
   boolean estRotationDe(int[][] bloc, int[][] autreBloc) {
     int[][] rotation = autreBloc;
     for (int i = 0; i < 4; i++) {
@@ -63,8 +83,11 @@ public class BlocGenerator extends PApplet {
     return false;
   }
 
-  boolean estEquivalentParRotation(int[][] bloc, ArrayList<int[][]> liste) {
-    for (int[][] autreBloc : liste) {
+  /**
+   * Sert à savoir si un bloc est "équivalent par rotation" d'une liste de blocs.
+   */
+  boolean estEquivalentParRotation(int[][] bloc, ArrayList<int[][]> listeBlocs) {
+    for (int[][] autreBloc : listeBlocs) {
       if (estRotationDe(bloc, autreBloc)) {
         return true;
       }
@@ -72,6 +95,9 @@ public class BlocGenerator extends PApplet {
     return false;
   }
 
+  /**
+   * Réduit, dans une liste, les blocs équivalents par rotations.
+   */
   ArrayList<int[][]> filtrerBlocsParClasseDeRotation(
     ArrayList<int[][]> listeBlocs
   ) {
@@ -85,6 +111,9 @@ public class BlocGenerator extends PApplet {
     return listeResultat;
   }
 
+  /**
+   * Donne la symétrie horizontale d'une matrice.
+   */
   int[][] symetriserHorizontalement(int[][] matrix) {
     int[][] mirroredMatrix = new int[matrix.length][matrix[0].length];
 
@@ -95,6 +124,9 @@ public class BlocGenerator extends PApplet {
     return mirroredMatrix;
   }
 
+  /**
+   * Donne la symétrie verticale d'une matrice.
+   */
   int[][] symetriserVerticalement(int[][] matrix) {
     int[][] mirroredMatrix = new int[matrix.length][matrix[0].length];
 
@@ -107,6 +139,9 @@ public class BlocGenerator extends PApplet {
     return mirroredMatrix;
   }
 
+  /**
+   * Détermine si 2 blocs sont "équivalents par symétrie rotation".
+   */
   boolean sontEquivalentParSymetrieRotation(int[][] bloc1, int[][] bloc2) {
     int[][] rotation = bloc2;
     for (int i = 0; i < 4; i++) {
@@ -121,6 +156,9 @@ public class BlocGenerator extends PApplet {
     return false;
   }
 
+  /**
+   * Réduit, dans une liste, les blocs équivalents par "symétrie rotations"
+   */
   ArrayList<int[][]> filtrerBlocsParClasseDeSymetrieRotation(
     ArrayList<int[][]> listeBlocs
   ) {
@@ -142,6 +180,9 @@ public class BlocGenerator extends PApplet {
     return listeResultat;
   }
 
+  /**
+   * Détermine si, dans une matrice, les "1" sont "connectés" (au sens de la définition ci-dessus).
+   */
   static boolean areOnesConnected(int[][] matrice) {
     int[][] directions = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
     int taille = matrice.length;
@@ -163,6 +204,9 @@ public class BlocGenerator extends PApplet {
     return premierUnTrouve;
   }
 
+  /**
+   * Fonction utilitaire récursive pour le parcours d'une matrice.
+   */
   static void explorerContinuite(
     int i,
     int j,
@@ -194,6 +238,9 @@ public class BlocGenerator extends PApplet {
     }
   }
 
+  /**
+   * Renvoie true si le bloc en paramètre vérifie le "pattern 0".
+   */
   boolean verifierPattern0(int[][] bloc) {
     int nombreUns = 0;
     for (int i = 0; i < bloc.length; i++) {
@@ -201,7 +248,7 @@ public class BlocGenerator extends PApplet {
         if (bloc[i][j] == 1) {
           nombreUns++;
           if (nombreUns > 1) return false; // Plus de 1 '1' trouvés
-          // Vérifier les carrés adjacents horizontalement et verticalement
+          // Vérification les carrés adjacents horizontalement et verticalement
           if (
             (j < bloc[i].length - 1 && bloc[i][j + 1] == 1) ||
             (j > 0 && bloc[i][j - 1] == 1) ||
@@ -216,6 +263,9 @@ public class BlocGenerator extends PApplet {
     return nombreUns == 1;
   }
 
+  /**
+   * Renvoie true si le bloc en paramètre vérifie le "pattern 1".
+   */
   boolean verifierPattern1(int[][] bloc) {
     for (int i = 0; i < bloc.length; i++) {
       for (int j = 0; j < bloc[i].length; j++) {
@@ -238,6 +288,9 @@ public class BlocGenerator extends PApplet {
     return false;
   }
 
+  /**
+   * Renvoie true si le bloc en paramètre vérifie le "pattern 2".
+   */
   boolean verifierPattern2(int[][] bloc) {
     for (int i = 0; i < bloc.length; i++) {
       for (int j = 0; j < bloc[i].length; j++) {
@@ -256,6 +309,9 @@ public class BlocGenerator extends PApplet {
     return false;
   }
 
+  /**
+   * Renvoie true si le bloc en paramètre vérifie le "pattern 3".
+   */
   boolean verifierPattern3(int[][] bloc) {
     ArrayList<int[]> positions = new ArrayList<>();
 
@@ -291,6 +347,9 @@ public class BlocGenerator extends PApplet {
     return false;
   }
 
+  /**
+   * Renvoie true si le bloc en paramètre vérifie le "pattern 4".
+   */
   boolean verifierPattern4(int[][] bloc) {
     return (
       (bloc[0][0] == 1 && bloc[2][2] == 1) ||
@@ -298,11 +357,17 @@ public class BlocGenerator extends PApplet {
     );
   }
 
+  /**
+   * Renvoie true si le bloc en paramètre vérifie le "pattern -1".
+   */
   boolean verifierPatternm1(int[][] bloc) {
     int[][] patternm1 = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
     return Arrays.deepEquals(bloc, patternm1);
   }
 
+  /**
+   * Renvoie une liste de tous les nombres binaires à 9 chiffres, sous la forme d'une liste de String.
+   */
   static ArrayList<String> genererBinaires9Chiffres() {
     ArrayList<String> binaires = new ArrayList<String>();
     for (int i = 0; i < 512; i++) { // 2^9 = 512
@@ -315,6 +380,9 @@ public class BlocGenerator extends PApplet {
     return binaires;
   }
 
+  /**
+   * Compte le nombre de "1" d'un nombre binaire.
+   */
   static int compterUns(String binaire) {
     int count = 0;
     for (char caractere : binaire.toCharArray()) {
@@ -325,16 +393,9 @@ public class BlocGenerator extends PApplet {
     return count;
   }
 
-  void shuffleArray(ArrayList<String> array) {
-    Random rand = new Random();
-    for (int i = array.size() - 1; i > 0; i--) {
-      int j = rand.nextInt(i + 1);
-      String temp = array.get(i);
-      array.set(i, array.get(j));
-      array.set(j, temp);
-    }
-  }
-
+  /**
+   * Renvoie une liste de binaires filtrés selon leurs nombres de "1".
+   */
   ArrayList<String> filtrerParNombreDeUns(
     ArrayList<String> listeBinaires,
     int nombreUns
@@ -348,6 +409,9 @@ public class BlocGenerator extends PApplet {
     return resultat;
   }
 
+  /**
+   * Transforme un binaire en bloc.
+   */
   static int[][] genererBloc(String binaire) {
     // Ajout préalable de 0 à la fin des binaires si besoin
     while (binaire.length() < 9) {
@@ -364,6 +428,9 @@ public class BlocGenerator extends PApplet {
     return bloc;
   }
 
+  /**
+   * Transforme une liste de binaires en une liste de blocs.
+   */
   static ArrayList<int[][]> genererLesBlocs(ArrayList<String> listeBinaires) {
     ArrayList<int[][]> blocsResultat = new ArrayList<>();
     for (String unBinaire : listeBinaires) {
@@ -372,6 +439,9 @@ public class BlocGenerator extends PApplet {
     return blocsResultat;
   }
 
+  /**
+   * Sélectionne les blocs "continus".
+   */
   static ArrayList<int[][]> filtrerBlocsContinus(
     ArrayList<int[][]> listeBlocs
   ) {
@@ -384,6 +454,9 @@ public class BlocGenerator extends PApplet {
     return blocsResultat;
   }
 
+  /**
+   * Sélectionne les blocs "brisés".
+   */
   static ArrayList<int[][]> filtrerBlocsBrises(ArrayList<int[][]> listeBlocs) {
     ArrayList<int[][]> blocsResultat = new ArrayList<>();
     for (int[][] unBloc : listeBlocs) {
@@ -394,8 +467,9 @@ public class BlocGenerator extends PApplet {
     return blocsResultat;
   }
 
-  // Appel de la fonction
   static ArrayList<String> tousLesBinaires = genererBinaires9Chiffres();
+
+  // Cette deuxième partie est le code Processing, qui permet d'afficher les blocs.
 
   int nombreCarresBlancs = 5;
   ArrayList<int[][]> tousLesBlocs;
@@ -452,7 +526,7 @@ public class BlocGenerator extends PApplet {
     // Initialisation du texte de présentation
     String texte =
       "INTRODUCTION :\n\n" +
-      "Le programme que vous venez d'ouvrir \nest un programme qui genere les \"blocs\" ci-dessus." +
+      "Le programme que vous venez d'ouvrir \nest un programme qui affiche les \"blocs\" generes ci-dessus." +
       "\n\nDefinitions :\n" +
       "- un \"bloc\" est la representation graphique d'une matrice 3x3 \nconstituee de 0 ou de 1.\n" +
       "- Un \"carre\" est la representation graphique d'un 0 ou d'un 1.\n" +
@@ -650,12 +724,13 @@ public class BlocGenerator extends PApplet {
     canvasWidth = Math.max(canvasWidth, minWidth);
     canvasHeight = Math.max(canvasHeight, minHeight);
 
-    size(canvasHeight, canvasWidth);
+    size(2160, 1080);
   }
 
   public void setup() {
-    // Sert à conformer la boîte de dialogue d'export à l'OS de l'utilisateur.
+    
     try {
+    // Sert à conformer la boîte de dialogue d'export à l'OS de l'utilisateur.
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     } catch (Exception e) {
       e.printStackTrace();
@@ -787,25 +862,6 @@ public class BlocGenerator extends PApplet {
       nombreBlocs.setValue(
         "Nombre de blocs affichés : " + blocsAffiches.size()
       );
-
-      // Calculer le nombre d'éléments par ligne
-      int elementsPerRow = (int) Math.ceil(
-        (double) blocsAffiches.size() / rownumber
-      );
-
-      // Calculer la largeur et la hauteur du canvas
-      int canvasWidth =
-        elementsPerRow *
-        (squareSize * scaling + verticalLineWidth) -
-        verticalLineWidth;
-      int canvasHeight = rownumber * squareSize * scaling;
-
-      // Assurer que le canvas n'est pas plus petit que les dimensions minimales
-      canvasWidth = Math.max(canvasWidth, minWidth);
-      canvasHeight = Math.max(canvasHeight, minHeight);
-
-      // Redimensionner le canvas
-      surface.setSize(canvasHeight, canvasWidth);
 
       regenererBlocs = false; // Réinitialiser la variable après la régénération
     }
