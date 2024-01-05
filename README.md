@@ -11,3 +11,5 @@ Block format (example): [[1,1,1],[1,1,0],[0,0,0]].
 We have some filters on blocks. A "continuous" or "connected" block is a block in which all "1" are connected, but not in diagonal.
 A "broken" block is a block which is not continuous.
 Then there is the pattern filters. You can try to check the pattern filters and guess for yourself what the patterns are.
+
+There is also the Processing version, in BlocGenerator.pde.
