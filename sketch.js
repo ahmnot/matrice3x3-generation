@@ -693,15 +693,15 @@ function initializeMenuBlocs() {
 }
 
 function preload() {
-  exempleBlocContinu = loadImage("blocs-6_19.png");
-  exempleBlocBrise = loadImage("blocs-5_09.png");
-  exemplePattern01 = loadImage("blocs-2_22.png");
-  exemplePattern02 = loadImage("bloc-1-3.png");
-  exemplePattern1 = loadImage("blocs-2_04.png");
-  exemplePattern2 = loadImage("blocs-2_23.png");
-  exemplePattern3 = loadImage("blocs-2_05.png");
-  exemplePattern4 = loadImage("blocs-2_08.png");
-  exemplePatternm11 = loadImage("bloc-0.png");
+  exempleBlocContinu = loadImage("data/blocs-6_19.png");
+  exempleBlocBrise =  loadImage("data/blocs-5_09.png");
+  exemplePattern01 =  loadImage("data/blocs-2_22.png");
+  exemplePattern02 =   loadImage("data/bloc-1-3.png");
+  exemplePattern1 =   loadImage("data/blocs-2_04.png");
+  exemplePattern2 =   loadImage("data/blocs-2_23.png");
+  exemplePattern3 =   loadImage("data/blocs-2_05.png");
+  exemplePattern4 =   loadImage("data/blocs-2_08.png");
+  exemplePatternm11 = loadImage("data/bloc-0.png");
 }
 
 function setup() {

@@ -86,7 +86,10 @@ public class BlocGenerator extends PApplet {
   /**
    * Sert à savoir si un bloc est "équivalent par rotation" d'une liste de blocs.
    */
-  boolean estEquivalentParRotation(int[][] bloc, ArrayList<int[][]> listeBlocs) {
+  boolean estEquivalentParRotation(
+    int[][] bloc,
+    ArrayList<int[][]> listeBlocs
+  ) {
     for (int[][] autreBloc : listeBlocs) {
       if (estRotationDe(bloc, autreBloc)) {
         return true;
@@ -471,12 +474,16 @@ public class BlocGenerator extends PApplet {
 
   // Cette deuxième partie est le code Processing, qui permet d'afficher les blocs.
 
+  // Détermine le nombre de carrés blancs des blocs affichés.
   int nombreCarresBlancs = 5;
+
+  // Des listes de blocs.
   ArrayList<int[][]> tousLesBlocs;
   ArrayList<int[][]> blocsContinus;
   ArrayList<int[][]> blocsBrises;
   ArrayList<int[][]> blocsAffiches;
 
+  // Déterminent la façon dont les blocs sont alignés.
   int scaling = 15;
   int rownumber = 11;
   int elementsPerRow;
@@ -513,6 +520,23 @@ public class BlocGenerator extends PApplet {
   Toggle[] checkboxes = new Toggle[6];
   Textlabel nombreBlocs;
 
+  PImage exempleBlocContinu;
+  PImage exempleBlocBrise;
+  PImage exemplePattern01;
+  PImage exemplePattern02;
+  PImage exemplePattern1;
+  PImage exemplePattern2;
+  PImage exemplePattern3;
+  PImage exemplePattern4;
+  PImage exemplePatternm11;
+
+  public static void main(String[] args) {
+    PApplet.main("BlocGenerator");
+  }
+
+  /**
+   * Sert à construire l'IHM, à l'aide de la bibliothèque ControlP5.
+   */
   void initializeMenuBlocs() {
     cp5 = new ControlP5(this);
     Textlabel legendeFiltres;
@@ -523,7 +547,8 @@ public class BlocGenerator extends PApplet {
       .addTextlabel("tutoTexte")
       .setText("Cliquez sur un bloc pour l'exporter.")
       .setPosition(positionIHMx + 25, positionIHMy - 20);
-    // Initialisation du texte de présentation
+
+    // Le texte de présentation
     String texte =
       "INTRODUCTION :\n\n" +
       "Le programme que vous venez d'ouvrir \nest un programme qui affiche les \"blocs\" generes ci-dessus." +
@@ -534,6 +559,7 @@ public class BlocGenerator extends PApplet {
       "Les blocs affiches, en haut a gauche, \nsont controles par les differents filtres et boutons, a gauche.\n" +
       "Vous pouvez cliquer sur un bloc pour l'exporter, \nou exporter tous les blocs affiches d'un coup.\n" +
       "Auteur : ahmnot/Othman Moatassime";
+
     cp5
       .addTextlabel("label")
       .setText(texte)
@@ -570,11 +596,10 @@ public class BlocGenerator extends PApplet {
           }
         );
 
-    // Checkbox pour "Enlever rotations"
     cp5
       .addToggle("checkboxRotations")
       .setPosition(positionIHMx + 20, positionIHMy + 80)
-      .setSize(20, 20) // Taille du toggle
+      .setSize(20, 20) // Taille de la checkbox
       .setValue(false) // Valeur initiale
       .setCaptionLabel("Enlever rotations")
       .onChange(
@@ -585,12 +610,11 @@ public class BlocGenerator extends PApplet {
         }
       );
 
-    // Checkbox pour "Enlever symétries"
     cp5
       .addToggle("checkboxSymetries")
       .setPosition(positionIHMx + 140, positionIHMy + 80)
-      .setSize(20, 20) // Taille du toggle
-      .setValue(false) // Valeur initiale
+      .setSize(20, 20)
+      .setValue(false)
       .setCaptionLabel("Enlever symetries")
       .onChange(
         new CallbackListener() {
@@ -600,13 +624,11 @@ public class BlocGenerator extends PApplet {
         }
       );
 
-    // Créer et positionner une légende pour les boutons radio
     cp5
       .addTextlabel("radioTypeBlocsLegende")
       .setText("Type de blocs affiches :")
       .setPosition(positionIHMx - 100, positionIHMy + 155);
 
-    // Créer les boutons radio
     radioTypeBlocs =
       cp5
         .addRadioButton("radioTypeBlocs")
@@ -618,17 +640,16 @@ public class BlocGenerator extends PApplet {
         .addItem("Continus", 2)
         .addItem("Brises", 3);
 
-    // Définir l'option par défaut
+    // Option sélectionnée par défaut
     radioTypeBlocs.activate(0);
 
-    // Créer la légende pour les filtres
     legendeFiltres =
       cp5
         .addTextlabel("legendeFiltres")
         .setText("Application de filtres :")
         .setPosition(positionIHMx - 100, positionIHMy + 250);
 
-    // Créer les checkboxes
+    // Création des checkboxes des filtres des patterns
     String[] labels = {
       "Pattern 0",
       "Pattern 1",
@@ -654,15 +675,12 @@ public class BlocGenerator extends PApplet {
               }
             }
           );
-
-      // Définir l'étiquette et ajuster sa position
       checkboxes[i].getCaptionLabel()
         .align(ControlP5.LEFT, ControlP5.CENTER)
         .setPaddingX(25) // Ajuster en fonction de vos besoins
         .setText(labels[i]);
     }
 
-    // Créer le bouton pour randomiser les blocs
     randomiserButton =
       cp5
         .addButton("randomiserBlocs")
@@ -671,14 +689,12 @@ public class BlocGenerator extends PApplet {
         .setSize(200, 19)
         .setLabel("Randomiser ordre des blocs");
 
-    // Créer le texte pour le nombre de blocs affichés
     nombreBlocs =
       cp5
         .addTextlabel("nombreBlocs")
         .setText("Nombre de blocs affiches : ")
         .setPosition(positionIHMx + 40, positionIHMy + 330);
 
-    // Créer le bouton pour exporter les blocs
     exportButton =
       cp5
         .addButton("exportAllBlocks")
@@ -695,42 +711,42 @@ public class BlocGenerator extends PApplet {
     );
   }
 
-  public static void main(String[] args) {
-    PApplet.main("BlocGenerator");
-  }
-
   public void settings() {
     Collections.sort(tousLesBinaires, (a, b) -> compterUns(a) - compterUns(b));
+
     // Génération des blocs
     tousLesBlocs = genererLesBlocs(tousLesBinaires);
     blocsContinus = filtrerBlocsContinus(tousLesBlocs);
     blocsBrises = filtrerBlocsBrises(tousLesBlocs);
 
-    // Inverser les listes pour des raisons d'affichage
+    // Inversion des listes pour des raisons d'affichage
     Collections.reverse(tousLesBlocs);
     Collections.reverse(blocsContinus);
     Collections.reverse(blocsBrises);
 
-    blocsAffiches = new ArrayList<>(tousLesBlocs); // Copie de tousLesBlocs
+    blocsAffiches = new ArrayList<>(tousLesBlocs);
 
     elementsPerRow = (int) Math.ceil((double) tousLesBlocs.size() / rownumber);
 
-    canvasWidth =
-      elementsPerRow *
-      (squareSize * scaling + verticalLineWidth) -
-      verticalLineWidth;
-    canvasHeight = rownumber * squareSize * scaling;
+    // Ce calcul de tailles du canvas ne fonctionnait pas,
+    // je préfère donc laisser une taille fixe au canvas pour le moment
 
-    canvasWidth = Math.max(canvasWidth, minWidth);
-    canvasHeight = Math.max(canvasHeight, minHeight);
+    // canvasWidth =
+    //   elementsPerRow *
+    //   (squareSize * scaling + verticalLineWidth) -
+    //   verticalLineWidth;
+    // canvasHeight = rownumber * squareSize * scaling;
+
+    // canvasWidth = Math.max(canvasWidth, minWidth);
+    // canvasHeight = Math.max(canvasHeight, minHeight);
 
     size(2160, 1080);
   }
 
   public void setup() {
-    
+
     try {
-    // Sert à conformer la boîte de dialogue d'export à l'OS de l'utilisateur.
+      // Sert à conformer la boîte de dialogue d'export à l'OS de l'utilisateur.
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     } catch (Exception e) {
       e.printStackTrace();
@@ -743,6 +759,15 @@ public class BlocGenerator extends PApplet {
     initializeMenuBlocs();
 
     background(couleurBackground);
+    exempleBlocContinu = loadImage("blocs-6_19.png");
+    exempleBlocBrise = loadImage("blocs-5_09.png");
+    exemplePattern01 = loadImage("blocs-2_22.png");
+    exemplePattern02 = loadImage("bloc-1-3.png");
+    exemplePattern1 = loadImage("blocs-2_04.png");
+    exemplePattern2 = loadImage("blocs-2_23.png");
+    exemplePattern3 = loadImage("blocs-2_05.png");
+    exemplePattern4 = loadImage("blocs-2_08.png");
+    exemplePatternm11 = loadImage("bloc-0.png");
   }
 
   public void draw() {
@@ -753,7 +778,7 @@ public class BlocGenerator extends PApplet {
 
       if (checkboxAfficherTout.getState()) {
         tousLesBlocs = genererLesBlocs(tousLesBinaires);
-        // Désactiver le slider si tous les blocs sont affichés
+        // Désactivation du slider si l'utilisateur choisit d'afficher tous les blocs
         cp5.getController("sliderNombreCarres").setLock(true);
         cp5
           .getController("sliderNombreCarres")
@@ -785,7 +810,7 @@ public class BlocGenerator extends PApplet {
         blocsBrises = filtrerBlocsParClasseDeRotation(blocsBrises);
       }
 
-      // Vérifier si la checkbox 'Symétries' est cochée
+      // Vérification de la checkbox 'Symétries'
       boolean symetriesChecked =
         cp5.getController("checkboxSymetries").getValue() == 1;
 
@@ -798,19 +823,20 @@ public class BlocGenerator extends PApplet {
       int selectedRadio = (int) radioTypeBlocs.getValue();
 
       switch (selectedRadio) {
-        case 1: // Supposons que 1 est la valeur pour 'Tous'
+        case 1: // 1 est la valeur pour 'Tous'
           blocsAffiches = tousLesBlocs;
           break;
-        case 2: // Supposons que 2 est la valeur pour 'Continus'
+        case 2: // 2 est la valeur pour 'Continus'
           blocsAffiches = blocsContinus;
           break;
-        case 3: // Supposons que 3 est la valeur pour 'Brisés'
+        case 3: // 3 est la valeur pour 'Brisés'
           blocsAffiches = blocsBrises;
           break;
         default:
           break;
       }
 
+      // Filtrage des blocs affichés selon les patterns sélectionnés.
       List<int[][]> filteredList = (List<int[][]>) blocsAffiches;
 
       if (cp5.getController("checkbox0").getValue() == 1) {
@@ -858,17 +884,29 @@ public class BlocGenerator extends PApplet {
 
       blocsAffiches = (ArrayList<int[][]>) filteredList;
 
-      // Mettre à jour le label du nombre de blocs
+      // Mise à jour du label du nombre de blocs
       nombreBlocs.setValue(
         "Nombre de blocs affichés : " + blocsAffiches.size()
       );
 
-      regenererBlocs = false; // Réinitialiser la variable après la régénération
+      regenererBlocs = false; // Variable qui est mise à jour au clic de certains éléments de l'IHM
     }
 
     // Nettoyage du canvas
     background(couleurBackground);
 
+    // Mise à jour de l'affichage
+    // image(exempleBlocContinu, 383, positionIHMy + 130);
+    // image(exempleBlocBrise, 447, positionIHMy + 130);
+    // image(exemplePattern01, 383, positionIHMy + 175 + 12);
+    // image(exemplePattern02, 403, positionIHMy + 175 + 12);
+    // image(exemplePattern1, 383, positionIHMy + 175 + 32);
+    // image(exemplePattern2, 383, positionIHMy + 175 + 52);
+    // image(exemplePattern3, 383, positionIHMy + 175 + 72);
+    // image(exemplePattern4, 383, positionIHMy + 175 + 92);
+    // image(exemplePatternm11, 383, positionIHMy + 175 + 112);
+
+    // Dessin des blocs.
     for (int l = 0; l < rownumber; l++) {
       for (int k = 0; k < elementsPerRow; k++) {
         int index = l * elementsPerRow + k;
@@ -890,9 +928,9 @@ public class BlocGenerator extends PApplet {
           decalageHorizontal += squareSize * scaling + verticalLineWidth;
         }
       }
-      decalageHorizontal = 0; // Réinitialiser le décalage pour chaque ligne
+      decalageHorizontal = 0;
 
-      // Dessiner la ligne horizontale après chaque ligne de blocs
+      // Dessin d'une ligne horizontale après chaque ligne de blocs
       if (l < rownumber - 1) {
         stroke(couleurBackground); // Couleur de la ligne
         strokeWeight(horizontalLineWidth);
@@ -908,11 +946,14 @@ public class BlocGenerator extends PApplet {
     drawHoverSquare();
   }
 
+  /**
+   * Sert à dessiner le carré rouge au survol de la grille.
+   */
   void drawHoverSquare() {
     int gridX = (int) Math.floor(mouseX / (float) totalWidth);
     int gridY = (int) Math.floor(mouseY / (float) (squareSize * scaling));
 
-    // Vérifier si la souris est à l'intérieur du canvas
+    // Vérifie si la souris est à l'intérieur du canvas
     if (
       mouseX >= gridStartX &&
       mouseX < gridEndX &&
@@ -929,6 +970,8 @@ public class BlocGenerator extends PApplet {
       );
     }
   }
+
+  // Les fonctions suivantes sont des fonctions d'écoute des évènements de changement sur les éléments de l'IHM.
 
   void onSliderChange() {
     nombreCarresBlancs =
@@ -952,6 +995,9 @@ public class BlocGenerator extends PApplet {
     Collections.shuffle(blocsAffiches);
   }
 
+  /**
+   * Fonction d'export des blocs.
+   */
   void exportAllBlocks() {
     JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle(
@@ -1015,6 +1061,9 @@ public class BlocGenerator extends PApplet {
     }
   }
 
+  /**
+   * Sert à dessiner un bloc dans un PNG.
+   */
   PGraphics createPGraphicsForBloc(int[][] bloc) {
     PGraphics pg = createGraphics(squareSize * scaling, squareSize * scaling);
     pg.beginDraw();
