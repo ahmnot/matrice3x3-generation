@@ -759,15 +759,20 @@ public class BlocGenerator extends PApplet {
     initializeMenuBlocs();
 
     background(couleurBackground);
-    exempleBlocContinu = loadImage("blocs-6_19.png");
-    exempleBlocBrise = loadImage("blocs-5_09.png");
-    exemplePattern01 = loadImage("blocs-2_22.png");
-    exemplePattern02 = loadImage("bloc-1-3.png");
-    exemplePattern1 = loadImage("blocs-2_04.png");
-    exemplePattern2 = loadImage("blocs-2_23.png");
-    exemplePattern3 = loadImage("blocs-2_05.png");
-    exemplePattern4 = loadImage("blocs-2_08.png");
-    exemplePatternm11 = loadImage("bloc-0.png");
+
+    // Les lignes suivantes sont censées charger les images situées dans le dossier "/data" 
+    // mais ne se chargent pas pour une raison incompréhensible.
+    // L'équivalent en p5.js fonctionne. 
+
+    // exempleBlocContinu = loadImage("blocs-6_19.png");
+    // exempleBlocBrise = loadImage("blocs-5_09.png");
+    // exemplePattern01 = loadImage("blocs-2_22.png");
+    // exemplePattern02 = loadImage("bloc-1-3.png");
+    // exemplePattern1 = loadImage("blocs-2_04.png");
+    // exemplePattern2 = loadImage("blocs-2_23.png");
+    // exemplePattern3 = loadImage("blocs-2_05.png");
+    // exemplePattern4 = loadImage("blocs-2_08.png");
+    // exemplePatternm11 = loadImage("bloc-0.png");
   }
 
   public void draw() {
@@ -895,7 +900,8 @@ public class BlocGenerator extends PApplet {
     // Nettoyage du canvas
     background(couleurBackground);
 
-    // Mise à jour de l'affichage
+    // Ajout des images indicatives, si elles fonctionnaient 
+
     // image(exempleBlocContinu, 383, positionIHMy + 130);
     // image(exempleBlocBrise, 447, positionIHMy + 130);
     // image(exemplePattern01, 383, positionIHMy + 175 + 12);
