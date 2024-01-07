@@ -936,7 +936,7 @@ public class BlocGenerator extends PApplet {
 
       // Mise à jour du label du nombre de blocs
       nombreBlocs.setValue(
-        "Nombre de blocs affichés : " + blocsAffiches.size()
+        "Nombre de blocs affiches : " + blocsAffiches.size()
       );
 
       regenererBlocs = false; // Variable qui est mise à jour au clic de certains éléments de l'IHM
