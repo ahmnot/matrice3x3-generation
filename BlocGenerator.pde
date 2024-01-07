@@ -19,15 +19,21 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import processing.core.*;
 
 /**
- * Ceci est un programme Processing qui génère des blocs et permet de manipuler leur affichage grâce à une IHM, l'IHM dépendant de la librairie controlP5.
+ * Ceci est un programme Processing/Java, qui génère des "blocs",
+ * et permet de manipuler leur affichage grâce à une IHM,
+ * l'IHM dépendant de la librairie controlP5.
+ *
+ * Pour utiliser ce programme, ouvrez-le avec une interface Processing, et cliquez sur le bouton "Exécuter" de Processing.
+ *
  * Définition : un "bloc" est une matrice 3x3 composée de 0 ou de 1.
  * Pour visualiser ces blocs, on dit que 0 = petit carré noir et 1 = petit carré blanc.
  * L'objectif de ce code est de générer l'intégralité de ces blocs, et de les classer.
- * Pour cela, on a des filtres sur les blocs. Un bloc "continu" est un bloc dans lequel tous les "1" sont connectés, mais pas en diagonale.
+ * Pour cela, il y a possibilité d'activer des filtres sur le type de blocs affichés, grâce à l'IHM.
+ * Par exemple, un bloc "continu" est un bloc dans lequel tous les "1" sont connectés, mais pas en diagonale.
  * Un bloc "brisé" est un bloc qui n'est pas continu.
- * Il y a ensuite les filtres de motifs.
- * Le programme permet enfin exporter tous les blocs que vous voyez dans un fichier zip, ou cliquer sur un bloc pour l'exporter.
- * Il y a aussi la version p5.js
+ * Il y a ensuite des filtres de motifs.
+ * Le programme permet enfin exporter tous les blocs affichés à l'écran, dans un fichier zip.
+ * (La version p5.js est disponible sur mon Github : https://github.com/ahmnot/matrice3x3-generation
  */
 public class BlocGenerator extends PApplet {
 
@@ -243,6 +249,13 @@ public class BlocGenerator extends PApplet {
 
   /**
    * Renvoie true si le bloc en paramètre vérifie le "pattern 0".
+   *
+   * Les blocs qui respectent le pattern 0 comprennent une "version" de ceci :
+   *
+   * { { 0, 0, 0 }
+   * , { 0, 1, 0 }
+   * , { 0, 0, 0 } }
+   *
    */
   boolean verifierPattern0(int[][] bloc) {
     int nombreUns = 0;
@@ -268,6 +281,12 @@ public class BlocGenerator extends PApplet {
 
   /**
    * Renvoie true si le bloc en paramètre vérifie le "pattern 1".
+   *
+   * Pattern 1 :
+   *
+   * { { 0, 0, 0 }
+   * , { 1, 1, 0 }
+   * , { 0, 0, 0 } }
    */
   boolean verifierPattern1(int[][] bloc) {
     for (int i = 0; i < bloc.length; i++) {
@@ -293,6 +312,12 @@ public class BlocGenerator extends PApplet {
 
   /**
    * Renvoie true si le bloc en paramètre vérifie le "pattern 2".
+   *
+   * Pattern 2 :
+   *
+   * { { 1, 0, 0 }
+   * , { 0, 1, 0 }
+   * , { 0, 0, 0 } }
    */
   boolean verifierPattern2(int[][] bloc) {
     for (int i = 0; i < bloc.length; i++) {
@@ -314,6 +339,13 @@ public class BlocGenerator extends PApplet {
 
   /**
    * Renvoie true si le bloc en paramètre vérifie le "pattern 3".
+   *
+   * Pattern 3 :
+   *
+   * { { 1, 0, 0 }
+   * , { 0, 0, 1 }
+   * , { 0, 0, 0 } }
+   *
    */
   boolean verifierPattern3(int[][] bloc) {
     ArrayList<int[]> positions = new ArrayList<>();
@@ -352,6 +384,13 @@ public class BlocGenerator extends PApplet {
 
   /**
    * Renvoie true si le bloc en paramètre vérifie le "pattern 4".
+   *
+   * Pattern 4 :
+   *
+   * { { 1, 0, 0 }
+   * , { 0, 0, 0 }
+   * , { 0, 0, 1 } }
+   *
    */
   boolean verifierPattern4(int[][] bloc) {
     return (
@@ -362,6 +401,13 @@ public class BlocGenerator extends PApplet {
 
   /**
    * Renvoie true si le bloc en paramètre vérifie le "pattern -1".
+   *
+   * Pattern -1 :
+   *
+   * { { 0, 0, 0 }
+   * , { 0, 0, 0 }
+   * , { 0, 0, 0 } }
+   *
    */
   boolean verifierPatternm1(int[][] bloc) {
     int[][] patternm1 = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
@@ -487,7 +533,7 @@ public class BlocGenerator extends PApplet {
   int scaling = 15;
   int rownumber = 11;
   int elementsPerRow;
-  int squareSize = 3;
+  int blockSize = 3;
   int verticalLineWidth = 1;
   int horizontalLineWidth = 2;
 
@@ -733,9 +779,9 @@ public class BlocGenerator extends PApplet {
 
     // canvasWidth =
     //   elementsPerRow *
-    //   (squareSize * scaling + verticalLineWidth) -
+    //   (blockSize * scaling + verticalLineWidth) -
     //   verticalLineWidth;
-    // canvasHeight = rownumber * squareSize * scaling;
+    // canvasHeight = rownumber * blockSize * scaling;
 
     // canvasWidth = Math.max(canvasWidth, minWidth);
     // canvasHeight = Math.max(canvasHeight, minHeight);
@@ -744,7 +790,6 @@ public class BlocGenerator extends PApplet {
   }
 
   public void setup() {
-
     try {
       // Sert à conformer la boîte de dialogue d'export à l'OS de l'utilisateur.
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -752,17 +797,17 @@ public class BlocGenerator extends PApplet {
       e.printStackTrace();
     }
 
-    totalWidth = squareSize * scaling + verticalLineWidth;
+    totalWidth = blockSize * scaling + verticalLineWidth;
     gridEndX = gridStartX + elementsPerRow * totalWidth;
-    gridEndY = gridStartY + rownumber * (squareSize * scaling);
+    gridEndY = gridStartY + rownumber * (blockSize * scaling);
 
     initializeMenuBlocs();
 
     background(couleurBackground);
-
-    // Les lignes suivantes sont censées charger les images situées dans le dossier "/data" 
+    // Les lignes suivantes sont censées charger les images situées dans le dossier "/data"
     // mais ne se chargent pas pour une raison incompréhensible.
-    // L'équivalent en p5.js fonctionne. 
+    // L'équivalent en p5.js fonctionne.
+    // Les décommenter si besoin.
 
     // exempleBlocContinu = loadImage("blocs-6_19.png");
     // exempleBlocBrise = loadImage("blocs-5_09.png");
@@ -900,7 +945,8 @@ public class BlocGenerator extends PApplet {
     // Nettoyage du canvas
     background(couleurBackground);
 
-    // Ajout des images indicatives, si elles fonctionnaient 
+    // Ajout des images indicatives, si elles fonctionnaient.
+    // Les décommenter si besoin.
 
     // image(exempleBlocContinu, 383, positionIHMy + 130);
     // image(exempleBlocBrise, 447, positionIHMy + 130);
@@ -918,20 +964,20 @@ public class BlocGenerator extends PApplet {
         int index = l * elementsPerRow + k;
         if (index < blocsAffiches.size()) {
           int[][] unBloc = blocsAffiches.get(index);
-          for (int i = 0; i < squareSize; i++) {
-            for (int j = 0; j < squareSize; j++) {
+          for (int i = 0; i < blockSize; i++) {
+            for (int j = 0; j < blockSize; j++) {
               if (unBloc[i][j] == 1) {
                 fill(255); // Couleur du carré
                 noStroke();
                 square(
                   j * scaling + decalageHorizontal,
-                  i * scaling + l * squareSize * scaling,
+                  (i + l * blockSize) * scaling,
                   scaling
                 );
               }
             }
           }
-          decalageHorizontal += squareSize * scaling + verticalLineWidth;
+          decalageHorizontal += blockSize * scaling + verticalLineWidth;
         }
       }
       decalageHorizontal = 0;
@@ -942,9 +988,9 @@ public class BlocGenerator extends PApplet {
         strokeWeight(horizontalLineWidth);
         line(
           0,
-          (l + 1) * squareSize * scaling,
+          (l + 1) * blockSize * scaling,
           canvasWidth,
-          (l + 1) * squareSize * scaling
+          (l + 1) * blockSize * scaling
         );
       }
     }
@@ -953,11 +999,34 @@ public class BlocGenerator extends PApplet {
   }
 
   /**
+   * Sert à dessiner un bloc, qui doit être au format int[][]
+   * , à la position x, y, avec une taille de carré de "tailleCarre".
+   *
+   * Les blocs sont comme ça :
+   *
+   * { { 1, 0, 0 }
+   * , { 0, 0, 1 }
+   * , { 0, 0, 0 } }
+   *
+   */
+  void dessinerBloc(int[][] bloc, int x, int y, int tailleCarre) {
+    for (int i = 0; i < bloc.length; i++) {
+      for (int j = 0; j < bloc.length; j++) {
+        if (bloc[i][j] == 1) {
+          fill(255); // Couleur du carré
+          noStroke();
+          square(j * x, i * y, tailleCarre);
+        }
+      }
+    }
+  }
+
+  /**
    * Sert à dessiner le carré rouge au survol de la grille.
    */
   void drawHoverSquare() {
     int gridX = (int) Math.floor(mouseX / (float) totalWidth);
-    int gridY = (int) Math.floor(mouseY / (float) (squareSize * scaling));
+    int gridY = (int) Math.floor(mouseY / (float) (blockSize * scaling));
 
     // Vérifie si la souris est à l'intérieur du canvas
     if (
@@ -971,8 +1040,8 @@ public class BlocGenerator extends PApplet {
       strokeWeight(2); // Épaisseur de la bordure
       square(
         gridX * totalWidth,
-        gridY * squareSize * scaling,
-        squareSize * scaling
+        gridY * blockSize * scaling,
+        blockSize * scaling
       );
     }
   }
@@ -1022,7 +1091,6 @@ public class BlocGenerator extends PApplet {
     if (userSelection == JFileChooser.APPROVE_OPTION) {
       File fileToSave = fileChooser.getSelectedFile();
       String filePath = fileToSave.getAbsolutePath();
-      // Assurez-vous que le chemin du fichier se termine par ".zip"
       if (!filePath.toLowerCase().endsWith(".zip")) {
         filePath += ".zip";
       }
@@ -1033,7 +1101,7 @@ public class BlocGenerator extends PApplet {
         for (int index = 0; index < blocsAffiches.size(); index++) {
           PGraphics pg = createPGraphicsForBloc(blocsAffiches.get(index));
 
-          // Convertir PGraphics en BufferedImage
+          // Conversion du PGraphics en BufferedImage
           BufferedImage bImage = new BufferedImage(
             pg.width,
             pg.height,
@@ -1045,12 +1113,12 @@ public class BlocGenerator extends PApplet {
             }
           }
 
-          // Écrire BufferedImage dans ByteArrayOutputStream
+          // Écriture du BufferedImage dans ByteArrayOutputStream
           ByteArrayOutputStream baos = new ByteArrayOutputStream();
           ImageIO.write(bImage, "png", baos);
           byte[] imageData = baos.toByteArray();
 
-          // Ajouter au fichier ZIP
+          // Ajout au fichier ZIP
           ZipEntry entry = new ZipEntry("bloc-" + index + ".png");
           zos.putNextEntry(entry);
           zos.write(imageData);
@@ -1071,13 +1139,13 @@ public class BlocGenerator extends PApplet {
    * Sert à dessiner un bloc dans un PNG.
    */
   PGraphics createPGraphicsForBloc(int[][] bloc) {
-    PGraphics pg = createGraphics(squareSize * scaling, squareSize * scaling);
+    PGraphics pg = createGraphics(blockSize * scaling, blockSize * scaling);
     pg.beginDraw();
     pg.background(0);
     pg.noFill();
 
-    for (int i = 0; i < squareSize; i++) {
-      for (int j = 0; j < squareSize; j++) {
+    for (int i = 0; i < blockSize; i++) {
+      for (int j = 0; j < blockSize; j++) {
         if (bloc[i][j] == 1) {
           pg.fill(255);
           pg.noStroke();
