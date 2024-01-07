@@ -2,7 +2,7 @@ This is a p5.js program that generates blocks.
 
 Definition: a “block” is a 3x3 matrix made up of 0 or 1.
 
-To visualize these squares, we say 0=small black square, and 1=small white square.
+To visualize these blocks, we say 0=small black square, and 1=small white square.
 
 The objective of this code is to generate the completeness of these blocks and classify them.
 
