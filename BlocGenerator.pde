@@ -999,29 +999,6 @@ public class BlocGenerator extends PApplet {
   }
 
   /**
-   * Sert à dessiner un bloc, qui doit être au format int[][]
-   * , à la position x, y, avec une taille de carré de "tailleCarre".
-   *
-   * Les blocs sont comme ça :
-   *
-   * { { 1, 0, 0 }
-   * , { 0, 0, 1 }
-   * , { 0, 0, 0 } }
-   *
-   */
-  void dessinerBloc(int[][] bloc, int x, int y, int tailleCarre) {
-    for (int i = 0; i < bloc.length; i++) {
-      for (int j = 0; j < bloc.length; j++) {
-        if (bloc[i][j] == 1) {
-          fill(255); // Couleur du carré
-          noStroke();
-          square(j * x, i * y, tailleCarre);
-        }
-      }
-    }
-  }
-
-  /**
    * Sert à dessiner le carré rouge au survol de la grille.
    */
   void drawHoverSquare() {
