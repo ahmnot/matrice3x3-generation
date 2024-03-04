@@ -15,4 +15,4 @@ Then you can export all the blocks you see in a zip file, or click on a block to
 ](https://www.youtube.com/watch?v=Y9bNTE-mXM0)
 
 
-There is also the Processing version, in BlocGenerator.pde.
+The main program is in sketch.js. There is also the Processing version, in BlocGenerator.pde.
